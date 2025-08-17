@@ -24,19 +24,25 @@ public class Review {
     private User reviewer;
 
     private LocalDateTime reviewDate;
-    private Boolean isApproved;
+    
+    @Enumerated(EnumType.STRING)
+    private ReviewStatus reviewStatus;
+
+    public enum ReviewStatus {
+        APPROVED, REJECTED, IN_PROGRESS
+    }
 
     // No-args constructor
     public Review() {
     }
 
     // All-args constructor
-    public Review(Long id, Application application, User reviewer, LocalDateTime reviewDate, Boolean isApproved) {
+    public Review(Long id, Application application, User reviewer, LocalDateTime reviewDate, ReviewStatus reviewStatus) {
         this.id = id;
         this.application = application;
         this.reviewer = reviewer;
         this.reviewDate = reviewDate;
-        this.isApproved = isApproved;
+        this.reviewStatus = reviewStatus;
     }
 
     // Getters and Setters
@@ -73,12 +79,11 @@ public class Review {
         this.reviewDate = reviewDate;
     }
 
-    public Boolean getIsApproved() {
-        return isApproved;
+    public ReviewStatus getReviewStatus() {
+        return reviewStatus;
     }
 
-    public void setIsApproved(Boolean isApproved) {
-        this.isApproved = isApproved;
+    public void setReviewStatus(ReviewStatus reviewStatus) {
+        this.reviewStatus = reviewStatus;
     }
-
 }

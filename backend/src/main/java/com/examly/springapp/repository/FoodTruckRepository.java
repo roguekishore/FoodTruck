@@ -3,6 +3,7 @@ package com.examly.springapp.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.examly.springapp.model.FoodTruck;
@@ -15,4 +16,6 @@ public interface FoodTruckRepository extends JpaRepository<FoodTruck, Long> {
 
     @Query("SELECT f FROM FoodTruck f WHERE f.brand.id = :brandId")
     List<FoodTruck> findByBrandId(@Param("brandId") Long brandId);
+
+    
 }

@@ -26,7 +26,7 @@ public class Inspection {
     private InspectionResult result; // PASS, FAIL
 
     public enum InspectionResult {
-        PASS, FAIL
+        PASS, FAIL, IN_PROGRESS
     }
 
     // No-args constructor

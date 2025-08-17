@@ -83,4 +83,6 @@ public class FoodTruckController {
         List<FoodTruck> savedTrucks = foodTruckService.saveAllFoodTrucks(brandId, foodTrucks);
         return new ResponseEntity<>(savedTrucks, HttpStatus.CREATED);
     }
+
+    
 }

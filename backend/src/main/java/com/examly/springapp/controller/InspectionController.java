@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/inspections")
@@ -51,4 +52,31 @@ public class InspectionController {
         }
         return ResponseEntity.notFound().build();
     }
+
+    @PostMapping("/assign/{foodTruckId}/inspector/{inspectorId}")
+    public ResponseEntity<?> assignInspector(@PathVariable Long foodTruckId, @PathVariable Long inspectorId) {
+        try {
+            Inspection inspection = inspectionService.assignInspectorToFoodTruck(foodTruckId, inspectorId);
+            return ResponseEntity.ok(inspection);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/{inspectionId}/result/{result}")
+    public ResponseEntity<?> updateInspectionResult(@PathVariable Long inspectionId, @PathVariable String result) {
+        try {
+            Inspection.InspectionResult inspectionResult = Inspection.InspectionResult.valueOf(result.toUpperCase());
+            Inspection updatedInspection = inspectionService.updateInspectionResult(inspectionId, inspectionResult);
+            return ResponseEntity.ok(updatedInspection);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid result. Use PASS, FAIL, or IN_PROGRESS"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    
 }

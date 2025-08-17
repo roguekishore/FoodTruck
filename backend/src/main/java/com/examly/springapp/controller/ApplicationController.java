@@ -70,4 +70,19 @@ public class ApplicationController {
             return ResponseEntity.badRequest().body(Map.of("error", "Application or Reviewer not found"));
         }
     }
+
+    @GetMapping("/foodtrucks/status/{status}")
+    public ResponseEntity<?> getFoodTrucksByApplicationStatus(@PathVariable String status) {
+        try {
+            Application.ApplicationStatus applicationStatus = Application.ApplicationStatus.valueOf(status.toUpperCase());
+            List<com.examly.springapp.model.FoodTruck> foodTrucks = applicationService.getFoodTrucksByApplicationStatus(applicationStatus);
+            return ResponseEntity.ok(foodTrucks);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid status. Use SUBMITTED, IN_REVIEW, APPROVED, or REJECTED"));
+        }
+    }
+
+    
+
+    
 }

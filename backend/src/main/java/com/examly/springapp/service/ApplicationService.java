@@ -1,6 +1,7 @@
 package com.examly.springapp.service;
 
 import com.examly.springapp.model.Application;
+import com.examly.springapp.model.FoodTruck;
 import com.examly.springapp.model.Review;
 import com.examly.springapp.model.User;
 import com.examly.springapp.repository.ApplicationRepository;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -69,8 +71,8 @@ public class ApplicationService {
         Review review = new Review();
         review.setApplication(application);
         review.setReviewer(reviewer);
-        review.setReviewDate(LocalDateTime.now());
-        review.setIsApproved(false); // Assuming you have this enum
+        review.setReviewDate(LocalDateTime.now()); // or setAssignedDate if you rename it
+        review.setReviewStatus(Review.ReviewStatus.IN_PROGRESS); // Use enum instead of boolean
         
         // Save the review
         Review savedReview = reviewRepository.save(review);
@@ -81,5 +83,13 @@ public class ApplicationService {
         
         // Save and return the updated application
         return applicationRepository.save(application);
+    }
+
+    @Transactional(readOnly = true)
+    public List<FoodTruck> getFoodTrucksByApplicationStatus(Application.ApplicationStatus status) {
+        return applicationRepository.findByStatus(status)
+                .stream()
+                .map(Application::getFoodTruck)
+                .collect(Collectors.toList());
     }
 }
