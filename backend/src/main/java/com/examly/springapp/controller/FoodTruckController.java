@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.examly.springapp.model.FoodTruck;
+import com.examly.springapp.model.dto.FoodTruckCreationDTO;
 import com.examly.springapp.service.FoodTruckService;
 
 import java.util.List;
@@ -18,9 +19,9 @@ public class FoodTruckController {
     private FoodTruckService foodTruckService;
 
     @PostMapping("/{brandId}")
-    public ResponseEntity<FoodTruck> createFoodTruck(@PathVariable Long brandId, @RequestBody FoodTruck foodTruck) {
+    public ResponseEntity<FoodTruck> createFoodTruck(@PathVariable Long brandId, @RequestBody FoodTruckCreationDTO creationDTO) {
         try {
-            FoodTruck savedFoodTruck = foodTruckService.saveFoodTruck(brandId, foodTruck);
+            FoodTruck savedFoodTruck = foodTruckService.saveFoodTruckWithApplication(brandId, creationDTO);
             return new ResponseEntity<>(savedFoodTruck, HttpStatus.CREATED);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

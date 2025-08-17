@@ -3,11 +3,20 @@ package com.examly.springapp.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.examly.springapp.model.Application;
 import com.examly.springapp.model.Brand;
+import com.examly.springapp.model.Document;
 import com.examly.springapp.model.FoodTruck;
+import com.examly.springapp.model.Vendor;
+import com.examly.springapp.model.dto.FoodTruckCreationDTO;
+import com.examly.springapp.repository.ApplicationRepository;
 import com.examly.springapp.repository.BrandRepository;
+import com.examly.springapp.repository.DocumentRepository;
 import com.examly.springapp.repository.FoodTruckRepository;
+import com.examly.springapp.repository.VendorRepository;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,11 +29,66 @@ public class FoodTruckService {
     @Autowired
     private BrandRepository brandRepository;
 
+    @Autowired
+    private ApplicationRepository applicationRepository;
+
+    @Autowired
+    private DocumentRepository documentRepository;
+
+    @Autowired
+    private VendorRepository vendorRepository;
+
     public FoodTruck saveFoodTruck(Long brandId, FoodTruck foodTruck) {
         Brand brand = brandRepository.findById(brandId)
                 .orElseThrow(() -> new RuntimeException("Brand not found with ID: " + brandId));
         foodTruck.setBrand(brand);
         return foodTruckRepository.save(foodTruck);
+    }
+
+    public FoodTruck saveFoodTruckWithApplication(Long brandId, FoodTruckCreationDTO creationDTO) {
+        // First, save the FoodTruck
+        Brand brand = brandRepository.findById(brandId)
+                .orElseThrow(() -> new RuntimeException("Brand not found with ID: " + brandId));
+        
+        FoodTruck foodTruck = creationDTO.getFoodTruck();
+        foodTruck.setBrand(brand);
+        FoodTruck savedFoodTruck = foodTruckRepository.save(foodTruck);
+
+        // Get the vendor
+        Vendor vendor = vendorRepository.findById(creationDTO.getVendorId())
+                .orElseThrow(() -> new RuntimeException("Vendor not found with ID: " + creationDTO.getVendorId()));
+
+        // Create Application
+        Application application = new Application();
+        application.setFoodTruck(savedFoodTruck);
+        application.setVendor(vendor);
+        application.setSubmissionDate(LocalDateTime.now());
+        application.setStatus(Application.ApplicationStatus.SUBMITTED);
+        application.setReview(null);
+
+        // Initialize documents list
+        List<Document> documents = new ArrayList<>();
+        
+        // Create documents from the list of list of strings
+        if (creationDTO.getDocuments() != null) {
+            for (List<String> documentData : creationDTO.getDocuments()) {
+                if (documentData.size() >= 2) {
+                    Document document = new Document();
+                    document.setDocumentName(documentData.get(0)); // docName
+                    document.setFilePath(documentData.get(1)); // docPath
+                    document.setApplication(application);
+                    documents.add(document);
+                }
+            }
+        }
+
+        // Set documents to application
+        application.setDocuments(documents);
+
+        // Save application (this will cascade and save documents too)
+        applicationRepository.save(application);
+
+        return savedFoodTruck;
     }
 
     public List<FoodTruck> getAllFoodTrucks() {

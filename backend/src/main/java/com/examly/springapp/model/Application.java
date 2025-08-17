@@ -4,9 +4,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "applications")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Application {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,9 +29,11 @@ public class Application {
     private ApplicationStatus status;
 
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("application-documents")
     private List<Document> documents;
 
     @OneToOne(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("application-review")
     private Review review;
 
     public enum ApplicationStatus {

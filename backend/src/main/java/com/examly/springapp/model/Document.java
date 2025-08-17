@@ -1,10 +1,12 @@
 package com.examly.springapp.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "documents")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Document {
 
     @Id
@@ -13,6 +15,7 @@ public class Document {
 
     @ManyToOne
     @JoinColumn(name = "application_id")
+    @JsonBackReference("application-documents")
     private Application application;
 
     private String documentName;
