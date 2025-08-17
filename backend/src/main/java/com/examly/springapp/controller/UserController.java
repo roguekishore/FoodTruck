@@ -76,4 +76,15 @@ public class UserController {
         }
         return ResponseEntity.notFound().build();
     }
+
+    @GetMapping("/role/{role}")
+    public ResponseEntity<List<User>> getUsersByRole(@PathVariable String role) {
+        try {
+            User.Role userRole = User.Role.valueOf(role.toUpperCase());
+            List<User> users = userService.findByRole(userRole);
+            return ResponseEntity.ok(users);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }

@@ -74,4 +74,8 @@ public class UserService {
     public void delete(Long id) {
         userRepository.deleteById(id);
     }
+
+    public List<User> findByRole(User.Role role) {
+        return userRepository.findByRole(role);
+    }
 }
