@@ -1,0 +1,216 @@
+.foodtrucks-container {
+  width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 0;
+  color: #333;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: #ff6d00;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
+}
+
+.back-btn:hover {
+  color: #ff8500;
+  transform: translateX(-3px);
+}
+
+.foodtrucks-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1rem;
+}
+
+.foodtrucks-header h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.add-foodtruck-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #ff6d00;
+  color: white;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.add-foodtruck-btn:hover:not(:disabled) {
+  background-color: #ff8500;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(255, 109, 0, 0.2);
+}
+
+.add-foodtruck-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+}
+
+.foodtrucks-grid {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.foodtruck-card {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); */
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border: 1px solid #ff8500;
+}
+
+.foodtruck-card:hover {
+  transform: translateY(-5px);
+}
+
+.foodtruck-content {
+  padding: 1.5rem;
+}
+
+.foodtruck-content h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: #222;
+}
+
+.foodtruck-content p {
+  color: #666;
+  margin-bottom: 1.2rem;
+  font-size: 0.95rem;
+}
+
+.foodtruck-actions {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.foodtruck-actions button {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.view-menu-btn {
+  background-color: white;
+  color: #ff6d00;
+  border-color: #ff6d00 !important;
+}
+
+.view-menu-btn:hover:not(:disabled) {
+  background-color: #fff5f0;
+  transform: translateY(-1px);
+}
+
+.edit-btn {
+  background-color: white;
+  color: #666;
+  border-color: #ddd !important;
+}
+
+.edit-btn:hover:not(:disabled) {
+  background-color: #f9f9f9;
+  transform: translateY(-1px);
+}
+
+.delete-btn {
+  background-color: white;
+  color: #e53935;
+  border-color: #ddd !important;
+}
+
+.delete-btn:hover:not(:disabled) {
+  background-color: #f9f9f9;
+  transform: translateY(-1px);
+}
+
+.foodtruck-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-style: italic;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid #ef5350;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Modal animations */
+.ReactModal__Overlay {
+  opacity: 0;
+  transition: opacity 200ms ease-in-out;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.ReactModal__Overlay--after-open {
+  opacity: 1;
+}
+
+.ReactModal__Overlay--before-close {
+  opacity: 0;
+}
+
+.ReactModal__Content {
+  transform: translateY(-20px);
+  transition: transform 200ms ease-in-out;
+}
+
+.ReactModal__Content--after-open {
+  transform: translateY(0);
+}
+
+.ReactModal__Content--before-close {
+  transform: translateY(-20px);
+}

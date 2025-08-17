@@ -1,0 +1,93 @@
+.navigation {
+  background-color: white;
+  /* box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); */
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.nav-container {
+  width: 1200px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.truck-icon {
+  height: 2rem;
+  width: 2rem;
+  color: #ea580c;
+}
+
+.nav-brand span {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.nav-link {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.nav-link:not(.active) {
+  color: #4b5563;
+}
+
+.nav-link:not(.active):hover {
+  background-color: #f3f4f6;
+}
+
+.nav-link.active {
+  background-color: #ea580c;
+  color: white;
+}
+
+/* Logout button styles */
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  color: #4b5563;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
+.logout-icon {
+  height: 1.25rem;
+  width: 1.25rem;
+  color: #4b5563;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover .logout-icon {
+  color: #ea580c;
+  transform: translateX(-2px);
+}
+

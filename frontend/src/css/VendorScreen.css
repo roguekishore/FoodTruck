@@ -1,0 +1,146 @@
+.home-container {
+  max-width: 7xl;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-section {
+  background: linear-gradient(to right, #f97316, #ef4444);
+  border-radius: 1.5rem;
+  padding: 3rem;
+  margin-bottom: 2rem;
+  color: white;
+}
+
+.hero-content h1 {
+  font-size: 3.75rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
+.hero-content p {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+  line-height: 1.75;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.hero-buttons button{
+  cursor: pointer;
+  background-color: white;
+  color: #ea580c;
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.hero-buttons button:hover {
+  background-color: #ffffff;
+  color: rgb(0, 0, 0);
+}
+
+.hero-image {
+  display: flex;
+  justify-content: center;
+}
+
+.icon-background {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+}
+
+.truck-icon {
+  height: 8rem;
+  width: 8rem;
+  color: white;
+  margin: 0 auto;
+}
+
+.features-grid {
+  display: grid;
+  gap: 2rem;
+  /* margin-bottom: 3rem; */
+}
+
+.feature-card {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 1.5rem;
+  border: 1px solid #f97316;
+  /* box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); */
+}
+
+.feature-icon {
+  height: 3rem;
+  width: 3rem;
+  color: #ea580c;
+  margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0.75rem;
+}
+
+.feature-card p {
+  color: #4b5563;
+}
+
+.stats-section {
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  padding: 2rem;
+}
+
+.stats-section h2 {
+  font-size: 1.875rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  color: #1f2937;
+}
+
+.stats-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 1.875rem;
+  font-weight: bold;
+  color: #ea580c;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  color: #4b5563;
+}
+
+@media (min-width: 768px) {
+  .hero-section {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    align-items: center;
+  }
+  
+  .features-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
