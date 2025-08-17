@@ -3,7 +3,7 @@ import { Plus, Edit, Trash2, Truck } from 'lucide-react';
 import FormModal from './FormModal';
 import DynamicForm from './DynamicForm';
 import { useApi } from '../context/ApiContext';
-import bg from './tr.jpg';
+import bg from '../images/tr.jpg';
 import '../css/BrandsSection.css';
 
 const BrandsSection = ({ onSelectBrand }) => {
@@ -19,7 +19,7 @@ const BrandsSection = ({ onSelectBrand }) => {
     setLoading(true);
     setError(null);
     try {
-      const vendorId = localStorage.getItem('vendorId');
+      const vendorId = localStorage.getItem('userId');
       if (!vendorId) throw new Error('No vendor ID found');
       const vendorBrands = await getBrandsByVendor(vendorId);
       setBrands(vendorBrands);
@@ -38,7 +38,7 @@ const BrandsSection = ({ onSelectBrand }) => {
   const handleCreateBrand = async (formData) => {
     setLoading(true);
     try {
-      const vendorId = localStorage.getItem('vendorId');
+      const vendorId = localStorage.getItem('userId');
       if (!vendorId) throw new Error('No vendor ID found');
       const newBrand = await createBrand(vendorId, formData);
       setBrands(prev => [...prev, newBrand]);

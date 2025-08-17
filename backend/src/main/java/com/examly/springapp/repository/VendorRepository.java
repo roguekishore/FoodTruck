@@ -9,5 +9,5 @@ import com.examly.springapp.model.Vendor;
 
 @Repository
 public interface VendorRepository extends JpaRepository<Vendor, Long> {
-    Optional<Vendor> findByEmailId(String emailId);
+    Optional<Vendor> findByEmailIgnoreCase(String email);
 }

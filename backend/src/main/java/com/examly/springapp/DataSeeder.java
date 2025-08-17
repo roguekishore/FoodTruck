@@ -98,9 +98,7 @@ public class DataSeeder {
         try {
             Vendor vendor = new Vendor();
             vendor.setName(name);
-            vendor.setPhoneNumber(phoneNumber);
-            vendor.setEmailId(emailId);
-            vendor.setAddress(address);
+            vendor.setEmail(emailId);
             vendor.setPassword(password);
             Vendor savedVendor = vendorService.saveVendor(vendor);
             System.out.println("  - Vendor seeded: " + name + " (ID: " + savedVendor.getId() + ")");

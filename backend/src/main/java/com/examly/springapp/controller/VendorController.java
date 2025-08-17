@@ -33,7 +33,7 @@ public class VendorController {
     public ResponseEntity<?> loginVendor(@RequestBody LoginRequest credentials) {
         try {
             Vendor vendor = vendorService.loginVendor(
-                    credentials.getEmailId(),
+                    credentials.getEmail(),
                     credentials.getPassword());
             return ResponseEntity.ok(vendor);
         } catch (RuntimeException e) {
@@ -44,7 +44,7 @@ public class VendorController {
 
     @Data
     public static class LoginRequest {
-        private String emailId;
+        private String email;
         private String password;
     }
 

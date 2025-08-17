@@ -2,9 +2,9 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from "react-route
 import Navbar from "./components/NavBar";
 import Home from "./components/Home";
 import DisplayFoodTruck from "./components/DisplayFoodTruck";
-import FoodTruckVendorApp from "./FoodTruckVendorApp";
 import ApplyForm from "./components/ApplyForm";
 import Footer from "./components/Footer";
+import RenderComp from "./RenderComp";
   
 function App() {  
   return (
@@ -25,7 +25,7 @@ function MainContent() {
         <Route path="/" element={<Home />} />
         <Route path="/apply" element={<ApplyForm />} />
         <Route path="/getAllVendors" element={<DisplayFoodTruck />} />
-        <Route path="/app" element={<FoodTruckVendorApp />} />
+        <Route path="/app" element={<RenderComp />} />
       </Routes>
       {showFullLayout && <Footer />}
     </div>

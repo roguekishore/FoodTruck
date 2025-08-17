@@ -25,8 +25,8 @@ public class VendorService {
     }
 
     public Vendor saveVendor(Vendor vendor) {
-        String email = vendor.getEmailId();
-        Optional<Vendor> v = vendorRepository.findByEmailId(email);
+        String email = vendor.getEmail();
+        Optional<Vendor> v = vendorRepository.findByEmailIgnoreCase(email);
         if(v.isPresent()) {
             throw new DuplicateVendorNameException("A vendor with this email already exists");
         }
@@ -46,10 +46,8 @@ public class VendorService {
                 .orElseThrow(() -> new RuntimeException("Vendor not found with ID: " + id));
 
         existingVendor.setName(updatedVendor.getName());
-        existingVendor.setPhoneNumber(updatedVendor.getPhoneNumber());
-        existingVendor.setEmailId(updatedVendor.getEmailId());
-        existingVendor.setAddress(updatedVendor.getAddress());
-
+        existingVendor.setEmail(updatedVendor.getEmail());
+        existingVendor.setPassword(updatedVendor.getPassword());
         return vendorRepository.save(existingVendor);
     }
 
@@ -60,14 +58,9 @@ public class VendorService {
         if (updatedVendor.getName() != null) {
             existingVendor.setName(updatedVendor.getName());
         }
-        if (updatedVendor.getPhoneNumber() != null) {
-            existingVendor.setPhoneNumber(updatedVendor.getPhoneNumber());
-        }
-        if (updatedVendor.getEmailId() != null) {
-            existingVendor.setEmailId(updatedVendor.getEmailId());
-        }
-        if (updatedVendor.getAddress() != null) {
-            existingVendor.setAddress(updatedVendor.getAddress());
+    
+        if (updatedVendor.getEmail() != null) {
+            existingVendor.setEmail(updatedVendor.getEmail());
         }
 
         return vendorRepository.save(existingVendor);
@@ -78,7 +71,8 @@ public class VendorService {
     }
 
     public Vendor loginVendor(String email, String password) {
-        Vendor vendor = vendorRepository.findByEmailId(email)
+        System.out.println("Searching for email: " + email);
+        Vendor vendor = vendorRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new RuntimeException("Vendor not found"));
         
         if (!vendor.getPassword().equals(password)) {

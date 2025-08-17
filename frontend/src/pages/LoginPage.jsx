@@ -13,7 +13,12 @@ const Login = ({ onLogin, switchToRegister }) => {
         setError('');
 
         try {
-            const response = await fetch(`${BASE_URL}/api/users/login`, {
+            // Determine the endpoint based on user type
+            const endpoint = userType === 'VENDOR' 
+                ? `${BASE_URL}/api/vendors/login` 
+                : `${BASE_URL}/api/users/login`;
+
+            const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -21,7 +26,7 @@ const Login = ({ onLogin, switchToRegister }) => {
                 body: JSON.stringify({ 
                     email, 
                     password,
-                    role: userType 
+                    ...(userType !== 'VENDOR' && { role: userType }) // Only send role for non-vendors
                 }),
             });
 
@@ -31,6 +36,10 @@ const Login = ({ onLogin, switchToRegister }) => {
             }
 
             const data = await response.json();
+            // Add role to the response data if it's a vendor
+            if (userType === 'VENDOR') {
+                data.role = 'VENDOR';
+            }
             onLogin(data);
         } catch (err) {
             setError(err.message || 'An error occurred. Please try again.');
@@ -54,16 +63,11 @@ const Login = ({ onLogin, switchToRegister }) => {
 
     const getUserTypeTitle = () => {
         switch(userType) {
-            case 'VENDOR':
-                return 'VENDOR';
-            case 'INSPECTOR':
-                return 'Inspector';
-            case 'REVIEWER':
-                return 'Reviewer';
-            case 'ADMIN':
-                return 'Admin';
-            default:
-                return 'User';
+            case 'VENDOR': return 'Vendor';
+            case 'INSPECTOR': return 'Inspector';
+            case 'REVIEWER': return 'Reviewer';
+            case 'ADMIN': return 'Admin';
+            default: return 'User';
         }
     };
 

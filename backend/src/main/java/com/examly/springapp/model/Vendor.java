@@ -16,16 +16,24 @@ public class Vendor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     private String name;
-    
-    private String phoneNumber;
-    private String emailId;
-    private String address;
+    private String email;
     private String password;
 
     @OneToMany(mappedBy = "vendor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Brand> brands;
+
+    public Vendor() {
+    }
+
+    public Vendor(Long id, String name, String email, String password, List<Brand> brands) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.brands = brands;
+    }
 
     public Long getId() {
         return id;
@@ -43,36 +51,12 @@ public class Vendor {
         this.name = name;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public String getEmail() {
+        return email;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getEmailId() {
-        return emailId;
-    }
-
-    public void setEmailId(String emailId) {
-        this.emailId = emailId;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public List<Brand> getBrands() {
-        return brands;
-    }
-
-    public void setBrands(List<Brand> brands) {
-        this.brands = brands;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getPassword() {
@@ -83,17 +67,11 @@ public class Vendor {
         this.password = password;
     }
 
-    public Vendor(Long id, String name, String phoneNumber, String emailId, String address, String password,
-            List<Brand> brands) {
-        this.id = id;
-        this.name = name;
-        this.phoneNumber = phoneNumber;
-        this.emailId = emailId;
-        this.address = address;
-        this.password = password;
-        this.brands = brands;
+    public List<Brand> getBrands() {
+        return brands;
     }
 
-    public Vendor() {
+    public void setBrands(List<Brand> brands) {
+        this.brands = brands;
     }
 }
