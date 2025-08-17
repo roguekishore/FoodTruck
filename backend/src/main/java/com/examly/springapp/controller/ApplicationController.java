@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/applications")
@@ -55,5 +56,18 @@ public class ApplicationController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/{applicationId}/assign-reviewer/{reviewerId}")
+    @Transactional
+    public ResponseEntity<?> assignReviewer(@PathVariable Long applicationId, @PathVariable Long reviewerId) {
+        try {
+            Application updatedApplication = applicationService.assignReviewer(applicationId, reviewerId);
+            return ResponseEntity.ok(updatedApplication);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Application or Reviewer not found"));
+        }
     }
 }
