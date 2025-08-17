@@ -63,9 +63,9 @@ public class FoodTruckVendorController {
         return new ResponseEntity<>("Vendor with id " + id + " has been deleted.", HttpStatus.OK);
     }
 
-    @PostMapping("/seedData")
-    public ResponseEntity<String> initializeData() {
-        dataSeeder.seedData();
-        return new ResponseEntity<>("Initial data seeding triggered successfully.", HttpStatus.OK);
-    }
+    // @PostMapping("/seedData")
+    // public ResponseEntity<String> initializeData() {
+    //     dataSeeder.seedData();
+    //     return new ResponseEntity<>("Initial data seeding triggered successfully.", HttpStatus.OK);
+    // }
 }
