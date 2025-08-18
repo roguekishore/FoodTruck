@@ -232,7 +232,7 @@ const TrucksSection = ({ brand, onSelectFoodTruck, onBack }) => {
         }}
       >
         <DynamicForm
-          entityType="foodtruck"
+          entityType="foodTruck"
           initialData={currentTruck || {}}
           onSubmit={isEditing ? handleUpdateTruck : handleCreateTruck}
           onCancel={() => {
