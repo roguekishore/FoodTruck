@@ -44,6 +44,33 @@ public class InspectionService {
         inspectionRepository.deleteById(id);
     }
 
+    // Find inspections by inspector ID
+    public List<Inspection> findByInspectorId(Long inspectorId) {
+        return inspectionRepository.getInspectionsByInspectorId(inspectorId);
+    }
+
+    // Find inspections by status
+    public List<Inspection> findByResult(Inspection.InspectionResult result) {
+        return inspectionRepository.getInspectionsByResult(result);
+    }
+
+    // Find pending inspections for an inspector
+    public List<Inspection> findPendingInspectionsByInspector(Long inspectorId) {
+        return inspectionRepository.getInspectionsByInspectorIdAndResult(inspectorId, Inspection.InspectionResult.IN_PROGRESS);
+    }
+
+    // Get inspector statistics
+    public InspectorStats getInspectorStats(Long inspectorId) {
+        long totalInspections = inspectionRepository.countByInspectorId(inspectorId);
+        long pendingInspections = inspectionRepository.countByInspectorIdAndResult(inspectorId, Inspection.InspectionResult.IN_PROGRESS);
+        long passedInspections = inspectionRepository.countByInspectorIdAndResult(inspectorId, Inspection.InspectionResult.PASS);
+        long failedInspections = inspectionRepository.countByInspectorIdAndResult(inspectorId, Inspection.InspectionResult.FAIL);
+        
+        double successRate = totalInspections > 0 ? ((double) passedInspections / totalInspections) * 100 : 0.0;
+        
+        return new InspectorStats(totalInspections, pendingInspections, passedInspections, failedInspections, successRate);
+    }
+
     @Transactional
     public Inspection assignInspectorToFoodTruck(Long foodTruckId, Long inspectorId) {
         // Fetch the food truck
@@ -82,5 +109,39 @@ public class InspectionService {
 
         // Save and return the updated inspection
         return inspectionRepository.save(inspection);
+    }
+
+    @Transactional
+    public Inspection updateInspectionWithDetails(Long inspectionId, Inspection.InspectionResult result, String notes) {
+        Inspection inspection = inspectionRepository.findById(inspectionId)
+                .orElseThrow(() -> new RuntimeException("Inspection not found with id: " + inspectionId));
+
+        inspection.setResult(result);
+        inspection.setInspectionDate(LocalDateTime.now());
+        return inspectionRepository.save(inspection);
+    }
+
+    // Inner class for inspector statistics
+    public static class InspectorStats {
+        private long totalInspections;
+        private long pendingInspections;
+        private long passedInspections;
+        private long failedInspections;
+        private double successRate;
+
+        public InspectorStats(long totalInspections, long pendingInspections, long passedInspections, long failedInspections, double successRate) {
+            this.totalInspections = totalInspections;
+            this.pendingInspections = pendingInspections;
+            this.passedInspections = passedInspections;
+            this.failedInspections = failedInspections;
+            this.successRate = successRate;
+        }
+
+        // Getters
+        public long getTotalInspections() { return totalInspections; }
+        public long getPendingInspections() { return pendingInspections; }
+        public long getPassedInspections() { return passedInspections; }
+        public long getFailedInspections() { return failedInspections; }
+        public double getSuccessRate() { return successRate; }
     }
 }

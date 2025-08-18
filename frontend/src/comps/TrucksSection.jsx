@@ -1,18 +1,25 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Edit, Trash2, Utensils } from 'lucide-react';
+import { Plus, Edit, Trash2, Menu, ArrowLeft, AlertCircle } from 'lucide-react';
 import FormModal from './FormModal';
 import DynamicForm from './DynamicForm';
+import StatusBadge from './StatusBadge';
 import { useApi } from '../context/ApiContext';
-import '../css/TrucksSection.css'
+import '../css/TrucksSection.css';
 
 const TrucksSection = ({ brand, onSelectFoodTruck, onBack }) => {
   const [foodTrucks, setFoodTrucks] = useState([]);
-  const [showFoodTruckForm, setShowFoodTruckForm] = useState(false);
-  const [currentFoodTruck, setCurrentFoodTruck] = useState(null);
+  const [showTruckForm, setShowTruckForm] = useState(false);
+  const [currentTruck, setCurrentTruck] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const { getFoodTrucksByBrand, createFoodTruck, updateFoodTruck, deleteFoodTruck } = useApi();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  
+  const { 
+    getFoodTrucksByBrand, 
+    createFoodTruck, 
+    updateFoodTruck, 
+    deleteFoodTruck
+  } = useApi();
 
   const fetchFoodTrucks = useCallback(async () => {
     setLoading(true);
@@ -32,12 +39,31 @@ const TrucksSection = ({ brand, onSelectFoodTruck, onBack }) => {
     fetchFoodTrucks();
   }, [fetchFoodTrucks]);
 
-  const handleCreateFoodTruck = async (formData) => {
+  const isApproved = (truck) => {
+    return truck.applicationStatus === 'APPROVED';
+  };
+
+  const getStatusMessage = (truck) => {
+    switch (truck.applicationStatus) {
+      case 'SUBMITTED':
+        return 'Application submitted - waiting for review';
+      case 'IN_REVIEW':
+        return 'Application under review';
+      case 'APPROVED':
+        return 'Application approved - all features available';
+      case 'REJECTED':
+        return 'Application rejected - contact support';
+      default:
+        return 'Status unknown';
+    }
+  };
+
+  const handleCreateTruck = async (formData) => {
     setLoading(true);
     try {
       const newTruck = await createFoodTruck(brand.id, formData);
       setFoodTrucks(prev => [...prev, newTruck]);
-      setShowFoodTruckForm(false);
+      setShowTruckForm(false);
     } catch (err) {
       setError('Failed to create food truck.');
       console.error('Failed to create food truck:', err);
@@ -46,15 +72,20 @@ const TrucksSection = ({ brand, onSelectFoodTruck, onBack }) => {
     }
   };
 
-  const handleUpdateFoodTruck = async (formData) => {
+  const handleUpdateTruck = async (formData) => {
+    if (!isApproved(currentTruck)) {
+      setError('Cannot edit food truck until application is approved.');
+      return;
+    }
+    
     setLoading(true);
     try {
-      const updatedTruck = await updateFoodTruck(currentFoodTruck.id, formData);
+      const updatedTruck = await updateFoodTruck(currentTruck.id, formData);
       setFoodTrucks(prev => prev.map(truck =>
-        truck.id === currentFoodTruck.id ? updatedTruck : truck
+        truck.id === currentTruck.id ? updatedTruck.data : truck
       ));
-      setShowFoodTruckForm(false);
-      setCurrentFoodTruck(null);
+      setShowTruckForm(false);
+      setCurrentTruck(null);
       setIsEditing(false);
     } catch (err) {
       setError('Failed to update food truck.');
@@ -64,12 +95,17 @@ const TrucksSection = ({ brand, onSelectFoodTruck, onBack }) => {
     }
   };
 
-  const handleDeleteFoodTruck = async (truckId) => {
+  const handleDeleteTruck = async (truck) => {
+    if (!isApproved(truck)) {
+      setError('Cannot delete food truck until application is approved.');
+      return;
+    }
+    
     if (window.confirm('Are you sure you want to delete this food truck?')) {
       setLoading(true);
       try {
-        await deleteFoodTruck(truckId);
-        setFoodTrucks(prev => prev.filter(truck => truck.id !== truckId));
+        await deleteFoodTruck(truck.id);
+        setFoodTrucks(prev => prev.filter(t => t.id !== truck.id));
       } catch (err) {
         setError('Failed to delete food truck.');
         console.error('Failed to delete food truck:', err);
@@ -80,23 +116,38 @@ const TrucksSection = ({ brand, onSelectFoodTruck, onBack }) => {
   };
 
   const handleEditClick = (truck) => {
-    setCurrentFoodTruck(truck);
+    if (!isApproved(truck)) {
+      setError('Cannot edit food truck until application is approved.');
+      return;
+    }
+    setCurrentTruck(truck);
     setIsEditing(true);
-    setShowFoodTruckForm(true);
+    setShowTruckForm(true);
+  };
+
+  const handleViewMenu = (truck) => {
+    if (!isApproved(truck)) {
+      setError('Cannot view menu until food truck application is approved.');
+      return;
+    }
+    onSelectFoodTruck(truck);
   };
 
   return (
-    <div className="foodtrucks-container">
-      <button onClick={onBack} className="back-btn">Back to Brands</button>
-      <div className="foodtrucks-header">
+    <div className="trucks-container">
+      <div className="trucks-header">
+        <button onClick={onBack} className="back-btn">
+          <ArrowLeft className="icon" />
+          Back to Brands
+        </button>
         <h2>Food Trucks for {brand.brandName}</h2>
         <button
           onClick={() => {
-            setCurrentFoodTruck(null);
+            setCurrentTruck(null);
             setIsEditing(false);
-            setShowFoodTruckForm(true);
+            setShowTruckForm(true);
           }}
-          className="add-foodtruck-btn"
+          className="add-truck-btn"
           disabled={loading}
         >
           <Plus className="icon" />
@@ -104,38 +155,62 @@ const TrucksSection = ({ brand, onSelectFoodTruck, onBack }) => {
         </button>
       </div>
 
-      {error && <div className="error-message">{error}</div>}
-      
-      {loading ? (
+      {error && (
+        <div className="error-message">
+          <AlertCircle className="icon" />
+          {error}
+          <button onClick={() => setError(null)} className="close-error">×</button>
+        </div>
+      )}
+
+      {loading && !foodTrucks.length ? (
         <div className="loading">Loading food trucks...</div>
       ) : (
-        <div className="foodtrucks-grid">
+        <div className="trucks-grid">
           {foodTrucks.map((truck) => (
-            <div key={truck.id} className="foodtruck-card">
-              <div className="foodtruck-content">
-                <h3>{truck.operatingRegion}</h3>
-                <p>Location: {truck.location}</p>
-                <div className="foodtruck-actions">
+            <div key={truck.id} className={`truck-card ${!isApproved(truck) ? 'truck-disabled' : ''}`}>
+              <div className="truck-content">
+                <div className="truck-header">
+                  <h3>{truck.operatingRegion}</h3>
+                  <StatusBadge status={truck.applicationStatus} />
+                </div>
+                
+                <div className="truck-details">
+                  <p><strong>Location:</strong> {truck.location}</p>
+                  <p><strong>Cuisine:</strong> {truck.cuisineSpecialties}</p>
+                  <p><strong>Highlights:</strong> {truck.menuHighlights}</p>
+                </div>
+
+                <div className="status-info">
+                  <p className={`status-message ${truck.applicationStatus.toLowerCase()}`}>
+                    {getStatusMessage(truck)}
+                  </p>
+                </div>
+
+                <div className="truck-actions">
                   <button
-                    className="view-menu-btn"
-                    onClick={() => onSelectFoodTruck(truck)}
-                    disabled={loading}
+                    className={`view-menu-btn ${!isApproved(truck) ? 'disabled' : ''}`}
+                    onClick={() => handleViewMenu(truck)}
+                    disabled={!isApproved(truck) || loading}
+                    title={!isApproved(truck) ? 'Available after approval' : 'View menu items'}
                   >
-                    <Utensils className="icon" />
+                    <Menu className="icon" />
                     View Menu
                   </button>
                   <button
-                    className="edit-btn"
+                    className={`edit-btn ${!isApproved(truck) ? 'disabled' : ''}`}
                     onClick={() => handleEditClick(truck)}
-                    disabled={loading}
+                    disabled={!isApproved(truck) || loading}
+                    title={!isApproved(truck) ? 'Available after approval' : 'Edit food truck'}
                   >
                     <Edit className="icon" />
                     Edit
                   </button>
                   <button
-                    className="delete-btn"
-                    onClick={() => handleDeleteFoodTruck(truck.id)}
-                    disabled={loading}
+                    className={`delete-btn ${!isApproved(truck) ? 'disabled' : ''}`}
+                    onClick={() => handleDeleteTruck(truck)}
+                    disabled={!isApproved(truck) || loading}
+                    title={!isApproved(truck) ? 'Available after approval' : 'Delete food truck'}
                   >
                     <Trash2 className="icon" />
                     Delete
@@ -149,20 +224,20 @@ const TrucksSection = ({ brand, onSelectFoodTruck, onBack }) => {
 
       <FormModal
         title={isEditing ? 'Edit Food Truck' : 'Add New Food Truck'}
-        isOpen={showFoodTruckForm}
+        isOpen={showTruckForm}
         onClose={() => {
-          setShowFoodTruckForm(false);
-          setCurrentFoodTruck(null);
+          setShowTruckForm(false);
+          setCurrentTruck(null);
           setIsEditing(false);
         }}
       >
         <DynamicForm
-          entityType="foodTruck"
-          initialData={currentFoodTruck || {}}
-          onSubmit={isEditing ? handleUpdateFoodTruck : handleCreateFoodTruck}
+          entityType="foodtruck"
+          initialData={currentTruck || {}}
+          onSubmit={isEditing ? handleUpdateTruck : handleCreateTruck}
           onCancel={() => {
-            setShowFoodTruckForm(false);
-            setCurrentFoodTruck(null);
+            setShowTruckForm(false);
+            setCurrentTruck(null);
             setIsEditing(false);
           }}
           submitButtonText={isEditing ? 'Update Food Truck' : 'Create Food Truck'}

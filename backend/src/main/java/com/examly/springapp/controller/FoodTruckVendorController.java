@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.examly.springapp.DataSeeder;
+// import com.examly.springapp.DataSeeder;
 import com.examly.springapp.model.FoodTruckVendor;
 import com.examly.springapp.service.FoodTruckVendorService;
 
@@ -23,8 +23,8 @@ public class FoodTruckVendorController {
     @Autowired
     public FoodTruckVendorService foodTruckVendorService;
 
-    @Autowired
-    public DataSeeder dataSeeder;
+    // @Autowired
+    // public DataSeeder dataSeeder;
 
     @PostMapping("/addVendor")
     public ResponseEntity<FoodTruckVendor> createVendor(@RequestBody FoodTruckVendor foodTruckVendor) {

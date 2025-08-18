@@ -77,6 +77,9 @@ public class UserController {
         return ResponseEntity.notFound().build();
     }
 
+    //used
+    //get users by role(reviewer || admin || inspector)
+    //called from adminapp - get no of reviewers for dashboard
     @GetMapping("/role/{role}")
     public ResponseEntity<List<User>> getUsersByRole(@PathVariable String role) {
         try {
@@ -87,8 +90,6 @@ public class UserController {
             return ResponseEntity.badRequest().build();
         }
     }
-
-    
 
     
 }

@@ -51,11 +51,11 @@ public class FoodTruckController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @DeleteMapping("/all")
-    public ResponseEntity<Void> deleteAllFoodTrucks() {
-        foodTruckService.deleteAllFoodTrucks();
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
+    // @DeleteMapping("/all")
+    // public ResponseEntity<Void> deleteAllFoodTrucks() {
+    //     foodTruckService.deleteAllFoodTrucks();
+    //     return new ResponseEntity<>(HttpStatus.OK);
+    // }
 
     @PutMapping("/{id}")
     public ResponseEntity<FoodTruck> putFoodTruck(@PathVariable Long id, @RequestBody FoodTruck foodTruck) {

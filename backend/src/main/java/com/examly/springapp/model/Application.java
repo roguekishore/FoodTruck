@@ -15,8 +15,9 @@ public class Application {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "food_truck_id", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "food_truck_id")
+    @JsonIgnoreProperties({"applications"}) // Prevent circular reference if FoodTruck has applications list
     private FoodTruck foodTruck;
 
     @ManyToOne
@@ -32,8 +33,8 @@ public class Application {
     @JsonManagedReference("application-documents")
     private List<Document> documents;
 
-    @OneToOne(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference("application-review")
+    @OneToOne(mappedBy = "application", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({"application"}) // Prevent circular reference
     private Review review;
 
     public enum ApplicationStatus {

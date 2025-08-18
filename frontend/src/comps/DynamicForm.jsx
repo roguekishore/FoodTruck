@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Truck, Users, Menu, MapPin, Plus } from 'lucide-react';
+import { Truck, Users, Menu, MapPin, Plus, FileText, Trash2, Upload } from 'lucide-react';
 import '../css/DynamicForm.css';
 
 const DynamicForm = ({
@@ -12,6 +12,7 @@ const DynamicForm = ({
 }) => {
   const [formData, setFormData] = useState(initialData);
   const [errors, setErrors] = useState({});
+  const [documents, setDocuments] = useState([]);
   const loading = false; 
   
   const formConfigs = {
@@ -29,7 +30,7 @@ const DynamicForm = ({
       ],
     },
     foodTruck: {
-      title: 'Food Truck Form',
+      title: 'Food Truck Registration',
       icon: <Truck />,
       fields: [
         {
@@ -52,9 +53,17 @@ const DynamicForm = ({
           label: 'Cuisine Specialties',
           type: 'text',
           required: false,
-          placeholder: 'Enter specialties',
+          placeholder: 'Enter specialties (e.g., Mexican, Italian)',
+        },
+        {
+          name: 'menuHighlights',
+          label: 'Menu Highlights',
+          type: 'textarea',
+          required: false,
+          placeholder: 'Describe your signature dishes and popular items',
         },
       ],
+      hasDocuments: true,
     },
     menuItem: {
       title: 'Menu Item Form',
@@ -100,6 +109,11 @@ const DynamicForm = ({
       }
     });
     setFormData({ ...initialFormData, ...initialData });
+
+    // Initialize with one empty document for food truck forms
+    if (entityType === 'foodTruck' && documents.length === 0) {
+      setDocuments([{ documentName: '', filePath: '' }]);
+    }
   }, [entityType, initialData]);
 
   const handleChange = (e) => {
@@ -113,13 +127,68 @@ const DynamicForm = ({
     }
   };
 
+  // Document management functions
+  const generateFilePath = (documentName) => {
+    if (!documentName) return '';
+    const sanitizedName = documentName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    const timestamp = new Date().getTime();
+    return `/uploads/documents/${sanitizedName}_${timestamp}.pdf`;
+  };
+
+  const handleDocumentChange = (index, field, value) => {
+    const updatedDocuments = [...documents];
+    updatedDocuments[index][field] = value;
+    
+    // Auto-generate file path when document name changes
+    if (field === 'documentName') {
+      updatedDocuments[index].filePath = generateFilePath(value);
+    }
+    
+    setDocuments(updatedDocuments);
+    
+    // Clear document-related errors
+    if (errors[`document_${index}_${field}`]) {
+      const newErrors = { ...errors };
+      delete newErrors[`document_${index}_${field}`];
+      setErrors(newErrors);
+    }
+  };
+
+  const addDocument = () => {
+    setDocuments([...documents, { documentName: '', filePath: '' }]);
+  };
+
+  const removeDocument = (index) => {
+    if (documents.length > 1) {
+      const updatedDocuments = documents.filter((_, i) => i !== index);
+      setDocuments(updatedDocuments);
+    }
+  };
+
   const validateForm = () => {
     const newErrors = {};
+    
+    // Validate regular form fields
     config.fields.forEach((field) => {
       if (field.required && !formData[field.name]) {
         newErrors[field.name] = `${field.label} is required`;
       }
     });
+
+    // Validate documents for food truck forms
+    if (entityType === 'foodTruck') {
+      documents.forEach((doc, index) => {
+        if (!doc.documentName.trim()) {
+          newErrors[`document_${index}_documentName`] = 'Document name is required';
+        }
+      });
+
+      // Ensure at least one document
+      if (documents.length === 0 || documents.every(doc => !doc.documentName.trim())) {
+        newErrors.documents = 'At least one document is required';
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -127,7 +196,21 @@ const DynamicForm = ({
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      onSubmit(formData);
+      if (entityType === 'foodTruck') {
+        // For food truck, create the DTO structure
+        const foodTruckData = {
+          foodTruck: formData,
+          vendorId: localStorage.getItem('userId'), // Get from localStorage
+          documents: documents
+            .filter(doc => doc.documentName.trim()) // Only include documents with names
+            .map(doc => [doc.documentName, doc.filePath])
+        };
+        console.log('Submitting food truck data:', foodTruckData);
+        onSubmit(foodTruckData);
+      } else {
+        console.log('Submitting form data:', formData);
+        onSubmit(formData);
+      }
     }
   };
 
@@ -139,6 +222,7 @@ const DynamicForm = ({
       </div>
       
       <form onSubmit={handleSubmit} className="form-body">
+        {/* Regular form fields */}
         {config.fields.map((field) => (
           <div key={field.name} className="form-field-group">
             <label htmlFor={field.name} className="form-label">
@@ -186,6 +270,88 @@ const DynamicForm = ({
             )}
           </div>
         ))}
+
+        {/* Document section for food truck forms */}
+        {config.hasDocuments && (
+          <div className="documents-section">
+            <div className="documents-header">
+              <h3 className="documents-title">
+                <FileText className="documents-icon" />
+                Required Documents
+              </h3>
+              <button
+                type="button"
+                onClick={addDocument}
+                className="add-document-btn"
+              >
+                <Plus size={16} />
+                Add Document
+              </button>
+            </div>
+
+            {errors.documents && (
+              <p className="error-message">{errors.documents}</p>
+            )}
+
+            <div className="documents-list">
+              {documents.map((document, index) => (
+                <div key={index} className="document-item">
+                  <div className="document-item-header">
+                    <span className="document-number">Document {index + 1}</span>
+                    {documents.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeDocument(index)}
+                        className="remove-document-btn"
+                        title="Remove document"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="document-fields">
+                    <div className="form-field-group">
+                      <label className="form-label">
+                        Document Name <span className="required-star">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={document.documentName}
+                        onChange={(e) => handleDocumentChange(index, 'documentName', e.target.value)}
+                        placeholder="e.g., Business License, Health Permit"
+                        className={`form-input ${
+                          errors[`document_${index}_documentName`] ? 'input-error' : ''
+                        }`}
+                      />
+                      {errors[`document_${index}_documentName`] && (
+                        <p className="error-message">{errors[`document_${index}_documentName`]}</p>
+                      )}
+                    </div>
+
+                    <div className="form-field-group">
+                      <label className="form-label">File Path</label>
+                      <div className="file-path-container">
+                        <Upload className="file-path-icon" />
+                        <input
+                          type="text"
+                          value={document.filePath}
+                          onChange={(e) => handleDocumentChange(index, 'filePath', e.target.value)}
+                          placeholder="Auto-generated file path"
+                          className="form-input file-path-input"
+                          readOnly
+                        />
+                      </div>
+                      <p className="file-path-hint">
+                        File path is auto-generated based on document name
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="form-actions">
           {onCancel && (

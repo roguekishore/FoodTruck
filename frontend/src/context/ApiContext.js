@@ -72,6 +72,17 @@ export const ApiProvider = ({ children }) => {
   const updateFoodTruck = async (foodTruckId, data) => api.put(`/foodtrucks/${foodTruckId}`, data);
   const deleteFoodTruck = async (foodTruckId) => api.delete(`/foodtrucks/${foodTruckId}`);
 
+  // --- Application Endpoints ---
+  const getApplicationByFoodTruckId = async (foodTruckId) => {
+    const response = await api.get(`/applications/foodtruck/${foodTruckId}`);
+    return response.data;
+  };
+
+  const updateApplicationStatus = async (applicationId, status) => {
+    const response = await api.put(`/applications/${applicationId}/status`, { status });
+    return response.data;
+  };
+
   // --- Menu Item Endpoints ---
   const getMenuItemsByFoodTruck = async (foodTruckId) => {
     const response = await api.get(`/menuitems/foodtruck/${foodTruckId}`);
@@ -113,6 +124,10 @@ export const ApiProvider = ({ children }) => {
     updateFoodTruck,
     deleteFoodTruck,
 
+    // Application
+    getApplicationByFoodTruckId,
+    updateApplicationStatus,
+    
     // Menu Item
     getMenuItemsByFoodTruck,
     createMenuItem,

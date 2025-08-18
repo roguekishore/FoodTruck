@@ -8,7 +8,7 @@ const InspectorNavigation = ({ activeSection, setActiveSection, onLogout, user }
       <div className="nav-container">
         <div className="nav-brand">
           <Clipboard className="truck-icon" />
-          <span>FoodTruck Pro - Inspector</span>
+          <span>Inspector</span>
         </div>
         <div className="nav-links">
           {[
@@ -29,7 +29,7 @@ const InspectorNavigation = ({ activeSection, setActiveSection, onLogout, user }
         </div>
         {user && (
           <div className="nav-user">
-            <span className="user-info">Inspector: {user.name}</span>
+            {/* <span className="user-info">Inspector: {user.name}</span> */}
             <button onClick={onLogout} className="logout-btn">
               <LogOut size={18} className="logout-icon" />
               Logout

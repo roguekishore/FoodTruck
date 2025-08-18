@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "reviews")
@@ -16,11 +16,12 @@ public class Review {
 
     @OneToOne
     @JoinColumn(name = "application_id")
-    @JsonIgnore
+    @JsonIgnoreProperties({"review"}) // Only ignore the back-reference to avoid circular reference
     private Application application;
 
     @ManyToOne
     @JoinColumn(name = "reviewer_id")
+    @JsonIgnoreProperties({"password", "reviews"}) // Exclude sensitive data and avoid circular reference
     private User reviewer;
 
     private LocalDateTime reviewDate;

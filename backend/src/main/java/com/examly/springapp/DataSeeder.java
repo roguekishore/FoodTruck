@@ -1,181 +1,14 @@
-package com.examly.springapp;
-
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.examly.springapp.model.Brand;
-import com.examly.springapp.model.FoodTruck;
-import com.examly.springapp.model.MenuItem;
-import com.examly.springapp.model.User; // Assuming User model is in this package
-import com.examly.springapp.model.Vendor;
-import com.examly.springapp.service.BrandService;
-import com.examly.springapp.service.FoodTruckService;
-import com.examly.springapp.service.MenuItemService;
-import com.examly.springapp.service.UserService; // Assuming UserService exists
-import com.examly.springapp.service.VendorService;
-
-import java.util.Arrays;
-import java.util.List;
-
-@Component
-public class DataSeeder implements CommandLineRunner {
-
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private VendorService vendorService;
-    @Autowired
-    private BrandService brandService;
-    @Autowired
-    private FoodTruckService foodTruckService;
-    @Autowired
-    private MenuItemService menuItemService;
-
-    @Override
-    public void run(String... args) throws Exception {
-        System.out.println("Starting data seeding process...");
-        seedUsers();
-        seedVendorsAndRelatedData();
-        System.out.println("Data seeding process complete.");
-    }
-
-    private void seedUsers() {
-        System.out.println("Seeding users...");
-
-        User adminUser = new User("Admin User", "admin@gmail.com", "demo", User.Role.ADMIN);
-        userService.save(adminUser);
-        System.out.println(" - User seeded: admin@gmail.com (Role: ADMIN)");
-
-        User inspectorUser = new User("Inspector User", "inspector@gmail.com", "demo", User.Role.INSPECTOR);
-        userService.save(inspectorUser);
-        System.out.println(" - User seeded: inspector@gmail.com (Role: INSPECTOR)");
-
-        User reviewerUser = new User("Reviewer User", "reviewer@gmail.com", "demo", User.Role.REVIEWER);
-        userService.save(reviewerUser);
-        System.out.println(" - User seeded: reviewer@gmail.com (Role: REVIEWER)");
-    }
-
-     private void seedVendorsAndRelatedData() {
-        Vendor vendor = seedVendor("Single Vendor", "vendor@gmail.com", "demo");
-        
-        if (vendor != null) {
-            Brand brand = seedBrand("The Taco Stand", vendor.getId());
-            if (brand != null) {
-                FoodTruck foodTruck = seedFoodTruck("Chennai", "Anna Nagar", "9988776655", "Mexican",
-                        "Tacos, Burritos, Quesadillas", brand.getId());
-                if (foodTruck != null) {
-                    seedMenuItems(foodTruck.getId());
-                }
-            }
-        }
-    }
-
-    private Vendor seedVendor(String name, String emailId, String password) {
-        try {
-            Vendor vendor = new Vendor();
-            vendor.setName(name);
-            vendor.setEmail(emailId);
-            vendor.setPassword(password);
-            Vendor savedVendor = vendorService.saveVendor(vendor);
-            System.out.println(" - Vendor seeded: " + name + " (ID: " + savedVendor.getId() + ")");
-            return savedVendor;
-        } catch (Exception e) {
-            System.err.println(" - Failed to seed vendor: " + name + ". Error: " + e.getMessage());
-            return null;
-        }
-    }
-
-    private Brand seedBrand(String brandName, Long vendorId) {
-        try {
-            Brand brand = new Brand();
-            brand.setBrandName(brandName);
-            Brand savedBrand = brandService.saveBrand(vendorId, brand);
-            System.out.println(" - Brand seeded: " + brandName + " (Vendor ID: " + vendorId + ")");
-            return savedBrand;
-        } catch (Exception e) {
-            System.err.println(" - Failed to seed brand: " + brandName + ". Error: " + e.getMessage());
-            return null;
-        }
-    }
-
-    private FoodTruck seedFoodTruck(String operatingRegion, String location, String phoneNumber,
-            String cuisineSpecialties, String menuHighlights, Long brandId) {
-        try {
-            FoodTruck foodTruck = new FoodTruck();
-            foodTruck.setOperatingRegion(operatingRegion);
-            foodTruck.setLocation(location);
-            foodTruck.setPhoneNumber(phoneNumber);
-            foodTruck.setCuisineSpecialties(cuisineSpecialties);
-            foodTruck.setMenuHighlights(menuHighlights);
-            FoodTruck savedFoodTruck = foodTruckService.saveFoodTruck(brandId, foodTruck);
-            System.out.println(" - FoodTruck seeded: " + savedFoodTruck.getLocation() + " (Brand ID: " + brandId + ")");
-            return savedFoodTruck;
-        } catch (Exception e) {
-            System.err.println(" - Failed to seed food truck. Error: " + e.getMessage());
-            return null;
-        }
-    }
-
-    private void seedMenuItems(Long foodTruckId) {
-        List<MenuItem> menuItems = Arrays.asList(
-                createMenuItem("Classic Burger", 9.50,
-                        "A juicy beef patty with lettuce, tomato, and onion on a toasted bun."),
-                createMenuItem("Spicy Veggie Wrap", 8.25,
-                        "A spinach tortilla with spicy hummus, avocado, and fresh veggies."),
-                createMenuItem("Sweet Potato Fries", 4.50,
-                        "Crispy sweet potato fries served with a side of chipotle mayo."),
-                createMenuItem("Chicken Tacos", 11.00,
-                        "Three grilled chicken tacos topped with pico de gallo and sour cream."),
-                createMenuItem("Cheese Quesadilla", 6.75,
-                        "Melted cheese in a warm flour tortilla, served with guacamole."),
-                createMenuItem("Lemonade", 2.50, "Freshly squeezed lemonade."),
-                createMenuItem("Onion Rings", 3.50, "Golden fried onion rings served with a tangy dipping sauce."),
-                createMenuItem("Classic Margherita Pizza", 12.00,
-                        "Classic pizza with fresh mozzarella, tomatoes, and basil."),
-                createMenuItem("Pad Thai Noodles", 10.50,
-                        "Stir-fried rice noodles with shrimp, chicken, peanuts, and lime."),
-                createMenuItem("Butter Chicken", 15.00,
-                        "Tender chicken cooked in a creamy tomato sauce, served with naan."),
-                createMenuItem("Chocolate Brownie", 5.00, "Rich and fudgy chocolate brownie."),
-                createMenuItem("Mineral Water", 1.50, "Bottled mineral water."));
-
-        for (MenuItem item : menuItems) {
-            try {
-                menuItemService.saveMenuItem(foodTruckId, item);
-                System.out.println("    - Menu item seeded: " + item.getName() + " (FoodTruck ID: " + foodTruckId + ")");
-            } catch (Exception e) {
-                System.err.println("    - Failed to seed menu item: " + item.getName() + ". Error: " + e.getMessage());
-            }
-        }
-    }
-
-    private MenuItem createMenuItem(String name, double price, String description) {
-        MenuItem item = new MenuItem();
-        item.setName(name);
-        item.setPrice(price);
-        item.setDescription(description);
-        return item;
-    }
-}
-
 // package com.examly.springapp;
 
 // import org.springframework.boot.CommandLineRunner;
 // import org.springframework.stereotype.Component;
 // import org.springframework.beans.factory.annotation.Autowired;
 
-// import com.examly.springapp.model.Brand;
-// import com.examly.springapp.model.FoodTruck;
-// import com.examly.springapp.model.MenuItem;
-// import com.examly.springapp.model.User; // Assuming User model is in this package
-// import com.examly.springapp.model.Vendor;
-// import com.examly.springapp.service.BrandService;
-// import com.examly.springapp.service.FoodTruckService;
-// import com.examly.springapp.service.MenuItemService;
-// import com.examly.springapp.service.UserService; // Assuming UserService exists
-// import com.examly.springapp.service.VendorService;
+// import com.examly.springapp.model.*;
+// import com.examly.springapp.model.dto.FoodTruckCreationDTO;
+// import com.examly.springapp.service.*;
 
+// import java.time.LocalDateTime;
 // import java.util.Arrays;
 // import java.util.List;
 
@@ -192,6 +25,10 @@ public class DataSeeder implements CommandLineRunner {
 //     private FoodTruckService foodTruckService;
 //     @Autowired
 //     private MenuItemService menuItemService;
+//     @Autowired
+//     private ApplicationService applicationService;
+//     @Autowired
+//     private DocumentService documentService;
 
 //     @Override
 //     public void run(String... args) throws Exception {
@@ -201,86 +38,123 @@ public class DataSeeder implements CommandLineRunner {
 //         System.out.println("Data seeding process complete.");
 //     }
 
-//     // --- User Seeding ---
-
 //     private void seedUsers() {
 //         System.out.println("Seeding users...");
 
-//         User adminUser = new User("Admin User", "admin@gmail.com", "demo", User.Role.ADMIN);
-//         userService.save(adminUser);
-//         System.out.println(" - User seeded: admin@gmail.com (Role: ADMIN)");
+//         // Admin Users
+//         User adminUser1 = new User("Admin User 1", "admin1@gmail.com", "demo", User.Role.ADMIN);
+//         userService.save(adminUser1);
+//         System.out.println(" - User seeded: admin1@gmail.com (Role: ADMIN)");
 
-//         User inspectorUser = new User("Inspector User", "inspector@gmail.com", "demo", User.Role.INSPECTOR);
-//         userService.save(inspectorUser);
-//         System.out.println(" - User seeded: inspector@gmail.com (Role: INSPECTOR)");
+//         User adminUser2 = new User("Admin User 2", "admin2@gmail.com", "demo", User.Role.ADMIN);
+//         userService.save(adminUser2);
+//         System.out.println(" - User seeded: admin2@gmail.com (Role: ADMIN)");
 
-//         User reviewerUser = new User("Reviewer User", "reviewer@gmail.com", "demo", User.Role.REVIEWER);
-//         userService.save(reviewerUser);
-//         System.out.println(" - User seeded: reviewer@gmail.com (Role: REVIEWER)");
+//         // Inspector Users
+//         User inspectorUser1 = new User("Inspector User 1", "inspector1@gmail.com", "demo", User.Role.INSPECTOR);
+//         userService.save(inspectorUser1);
+//         System.out.println(" - User seeded: inspector1@gmail.com (Role: INSPECTOR)");
+
+//         User inspectorUser2 = new User("Inspector User 2", "inspector2@gmail.com", "demo", User.Role.INSPECTOR);
+//         userService.save(inspectorUser2);
+//         System.out.println(" - User seeded: inspector2@gmail.com (Role: INSPECTOR)");
+
+//         // Reviewer Users
+//         User reviewerUser1 = new User("Reviewer User 1", "reviewer1@gmail.com", "demo", User.Role.REVIEWER);
+//         userService.save(reviewerUser1);
+//         System.out.println(" - User seeded: reviewer1@gmail.com (Role: REVIEWER)");
+
+//         User reviewerUser2 = new User("Reviewer User 2", "reviewer2@gmail.com", "demo", User.Role.REVIEWER);
+//         userService.save(reviewerUser2);
+//         System.out.println(" - User seeded: reviewer2@gmail.com (Role: REVIEWER)");
 //     }
 
-//     // --- Vendor and Related Data Seeding ---
-
 //     private void seedVendorsAndRelatedData() {
-
-//         Vendor vendor1 = seedVendor("Global Food Ventures", "demo@gmail.com", "password");
-//         Vendor vendor2 = seedVendor("Metro Eats Group", "info@metroeats.com", "password");
-//         Vendor vendor3 = seedVendor("Street Foods Inc.", "support@streetfoods.com", "password");
-//         Vendor vendor4 = seedVendor("The Gourmet Wagon", "contact@gourmetwagon.com", "password");
-//         Vendor vendor5 = seedVendor("Fusion Flavors Co.", "fusion@flavors.com", "password");
-
-//         if (vendor1 != null) {
-//             Brand brand = seedBrand("The Taco Stand", vendor1.getId());
-//             if (brand != null) {
-//                 FoodTruck foodTruck = seedFoodTruck("Chennai", "Anna Nagar", "9988776655", "Mexican",
-//                         "Tacos, Burritos, Quesadillas", brand.getId());
-//                 if (foodTruck != null) {
-//                     seedMenuItems(foodTruck.getId());
-//                 }
-//             }
+//         Vendor vendor = seedVendor("Single Vendor", "vendor@gmail.com", "demo");
+        
+//         if (vendor != null) {
+//             // Create multiple brands and food trucks with applications - ALL SUBMITTED
+//             createFoodTruckWithApplicationAndDocuments(vendor.getId(), "The Taco Stand", "Chennai", "Anna Nagar", "Mexican", "Tacos, Burritos, Quesadillas");
+//             createFoodTruckWithApplicationAndDocuments(vendor.getId(), "Burger Bliss", "Bangalore", "Koramangala", "American", "Classic Burgers, Fries");
+//             createFoodTruckWithApplicationAndDocuments(vendor.getId(), "Curry Express", "Mumbai", "Bandra", "Indian", "Butter Chicken, Naan");
+//             createFoodTruckWithApplicationAndDocuments(vendor.getId(), "Pizza Paradise", "Delhi", "Connaught Place", "Italian", "Wood-fired Pizza, Pasta");
+//             createFoodTruckWithApplicationAndDocuments(vendor.getId(), "Asian Fusion", "Hyderabad", "Hitech City", "Asian", "Pad Thai, Dumplings");
+//             createFoodTruckWithApplicationAndDocuments(vendor.getId(), "Street Samosa", "Pune", "Koregaon Park", "Indian Street Food", "Samosas, Chaat, Vada Pav");
 //         }
+//     }
 
-//         if (vendor2 != null) {
-//             Brand brand = seedBrand("Burger Bliss", vendor2.getId());
-//             if (brand != null) {
-//                 FoodTruck foodTruck = seedFoodTruck("Bangalore", "Koramangala", "9911223344", "American",
-//                         "Classic Burgers, Shakes", brand.getId());
-//                 if (foodTruck != null) {
-//                     seedMenuItems(foodTruck.getId());
-//                 }
-//             }
+//     private void createFoodTruckWithApplicationAndDocuments(Long vendorId, String brandName, String operatingRegion, String location, String cuisineSpecialties, String menuHighlights) {
+//         try {
+//             // Create brand
+//             Brand brand = seedBrand(brandName, vendorId);
+//             if (brand == null) return;
+
+//             // Create food truck
+//             FoodTruck foodTruck = new FoodTruck();
+//             foodTruck.setOperatingRegion(operatingRegion);
+//             foodTruck.setLocation(location);
+//             foodTruck.setCuisineSpecialties(cuisineSpecialties);
+//             foodTruck.setMenuHighlights(menuHighlights);
+//             foodTruck.setBrand(brand);
+
+//             // Save food truck
+//             FoodTruck savedFoodTruck = foodTruckService.saveFoodTruck(brand.getId(), foodTruck);
+//             System.out.println(" - FoodTruck seeded: " + savedFoodTruck.getLocation() + " (Brand: " + brandName + ")");
+            
+//             // Create application for the food truck - ALL SUBMITTED BY DEFAULT
+//             Application application = createApplication(savedFoodTruck, Application.ApplicationStatus.SUBMITTED);
+            
+//             // Create documents for the application
+//             createDocuments(application, brandName);
+            
+//             // Seed reduced menu items (3 items)
+//             seedReducedMenuItems(savedFoodTruck.getId(), cuisineSpecialties);
+
+//         } catch (Exception e) {
+//             System.err.println(" - Failed to seed food truck for brand: " + brandName + ". Error: " + e.getMessage());
+//             e.printStackTrace();
 //         }
+//     }
 
-//         if (vendor3 != null) {
-//             Brand brand = seedBrand("Curry Up!", vendor3.getId());
-//             if (brand != null) {
-//                 FoodTruck foodTruck = seedFoodTruck("Chennai", "T. Nagar", "9900000000", "Indian",
-//                         "Butter Chicken, Naan", brand.getId());
-//                 if (foodTruck != null) {
-//                     seedMenuItems(foodTruck.getId());
-//                 }
-//             }
+//     private Application createApplication(FoodTruck foodTruck, Application.ApplicationStatus status) {
+//         try {
+//             Application application = new Application();
+//             application.setFoodTruck(foodTruck);
+//             application.setStatus(status);
+//             application.setSubmissionDate(LocalDateTime.now().minusDays((long) (Math.random() * 30))); // Random date within last 30 days
+            
+//             Application savedApplication = applicationService.save(application);
+//             System.out.println(" - Application seeded: ID " + savedApplication.getId() + " (Status: " + status + ")");
+//             return savedApplication;
+//         } catch (Exception e) {
+//             System.err.println(" - Failed to create application for food truck: " + foodTruck.getId() + ". Error: " + e.getMessage());
+//             return null;
 //         }
+//     }
 
-//         if (vendor4 != null) {
-//             Brand brand = seedBrand("The Shawarma King", vendor4.getId());
-//             if (brand != null) {
-//                 FoodTruck foodTruck = seedFoodTruck("Bangalore", "Whitefield", "9012345678", "Middle Eastern",
-//                         "Chicken Shawarma, Falafel", brand.getId());
-//                 if (foodTruck != null) {
-//                     seedMenuItems(foodTruck.getId());
-//                 }
-//             }
-//         }
+//     private void createDocuments(Application application, String brandName) {
+//         if (application == null) return;
+        
+//         List<List<String>> documentsData = Arrays.asList(
+//             Arrays.asList("Business License", "/documents/business_license_" + brandName.toLowerCase().replace(" ", "_") + ".pdf"),
+//             Arrays.asList("Food Safety Certificate", "/documents/food_safety_" + brandName.toLowerCase().replace(" ", "_") + ".pdf"),
+//             Arrays.asList("Insurance Certificate", "/documents/insurance_" + brandName.toLowerCase().replace(" ", "_") + ".pdf"),
+//             Arrays.asList("Vehicle Registration", "/documents/vehicle_reg_" + brandName.toLowerCase().replace(" ", "_") + ".pdf"),
+//             Arrays.asList("Health Department Permit", "/documents/health_permit_" + brandName.toLowerCase().replace(" ", "_") + ".pdf")
+//         );
 
-//         if (vendor5 != null) {
-//             Brand brand = seedBrand("Asian Fusion Delights", vendor5.getId());
-//             if (brand != null) {
-//                 FoodTruck foodTruck = seedFoodTruck("Delhi", "Connaught Place", "9111122222", "Asian, Thai",
-//                         "Pad Thai, Drunken Noodles", brand.getId());
-//                 if (foodTruck != null) {
-//                     seedMenuItems(foodTruck.getId());
-//                 }
+//         for (List<String> docData : documentsData) {
+//             try {
+//                 Document document = new Document();
+//                 document.setDocumentName(docData.get(0));
+//                 document.setFilePath(docData.get(1));
+//                 document.setApplication(application);
+//                 // document.setUploadDate(LocalDateTime.now().minusDays((long) (Math.random() * 30)));
+                
+//                 documentService.save(document);
+//                 System.out.println("    - Document seeded: " + docData.get(0) + " (Application ID: " + application.getId() + ")");
+//             } catch (Exception e) {
+//                 System.err.println("    - Failed to seed document: " + docData.get(0) + ". Error: " + e.getMessage());
 //             }
 //         }
 //     }
@@ -313,53 +187,66 @@ public class DataSeeder implements CommandLineRunner {
 //         }
 //     }
 
-//     private FoodTruck seedFoodTruck(String operatingRegion, String location, String phoneNumber,
-//             String cuisineSpecialties, String menuHighlights, Long brandId) {
-//         try {
-//             FoodTruck foodTruck = new FoodTruck();
-//             foodTruck.setOperatingRegion(operatingRegion);
-//             foodTruck.setLocation(location);
-//             foodTruck.setPhoneNumber(phoneNumber);
-//             foodTruck.setCuisineSpecialties(cuisineSpecialties);
-//             foodTruck.setMenuHighlights(menuHighlights);
-//             FoodTruck savedFoodTruck = foodTruckService.saveFoodTruck(brandId, foodTruck);
-//             System.out.println(" - FoodTruck seeded: " + savedFoodTruck.getLocation() + " (Brand ID: " + brandId + ")");
-//             return savedFoodTruck;
-//         } catch (Exception e) {
-//             System.err.println(" - Failed to seed food truck. Error: " + e.getMessage());
-//             return null;
+//     private void seedReducedMenuItems(Long foodTruckId, String cuisineType) {
+//         List<MenuItem> menuItems;
+        
+//         switch (cuisineType.toLowerCase()) {
+//             case "mexican":
+//                 menuItems = Arrays.asList(
+//                     createMenuItem("Classic Beef Tacos", 11.00, "Three grilled beef tacos topped with pico de gallo and sour cream."),
+//                     createMenuItem("Cheese Quesadilla", 8.75, "Melted cheese in a warm flour tortilla, served with guacamole."),
+//                     createMenuItem("Spicy Bean Burrito", 9.50, "Large burrito with spicy black beans, rice, and fresh salsa.")
+//                 );
+//                 break;
+//             case "american":
+//                 menuItems = Arrays.asList(
+//                     createMenuItem("Classic Cheeseburger", 10.50, "Juicy beef patty with cheese, lettuce, tomato, and onion on a toasted bun."),
+//                     createMenuItem("Crispy Chicken Sandwich", 11.00, "Fried chicken breast with mayo and pickles on a brioche bun."),
+//                     createMenuItem("Sweet Potato Fries", 5.50, "Crispy sweet potato fries served with a side of chipotle mayo.")
+//                 );
+//                 break;
+//             case "indian":
+//                 menuItems = Arrays.asList(
+//                     createMenuItem("Butter Chicken", 13.00, "Tender chicken cooked in a creamy tomato sauce, served with naan."),
+//                     createMenuItem("Vegetable Biryani", 11.50, "Fragrant basmati rice with mixed vegetables and aromatic spices."),
+//                     createMenuItem("Samosa Chat", 6.75, "Crispy samosas topped with chutneys and yogurt.")
+//                 );
+//                 break;
+//             case "italian":
+//                 menuItems = Arrays.asList(
+//                     createMenuItem("Margherita Pizza", 12.00, "Classic pizza with fresh mozzarella, tomatoes, and basil."),
+//                     createMenuItem("Penne Arrabbiata", 10.50, "Penne pasta in spicy tomato sauce with garlic and red peppers."),
+//                     createMenuItem("Garlic Breadsticks", 4.50, "Warm breadsticks with garlic butter and parmesan cheese.")
+//                 );
+//                 break;
+//             case "asian":
+//                 menuItems = Arrays.asList(
+//                     createMenuItem("Pad Thai Noodles", 11.50, "Stir-fried rice noodles with shrimp, chicken, peanuts, and lime."),
+//                     createMenuItem("Pork Dumplings", 8.00, "Steamed dumplings filled with seasoned pork and vegetables."),
+//                     createMenuItem("Thai Green Curry", 12.00, "Spicy green curry with coconut milk, vegetables, and jasmine rice.")
+//                 );
+//                 break;
+//             case "indian street food":
+//                 menuItems = Arrays.asList(
+//                     createMenuItem("Mumbai Vada Pav", 3.50, "Spicy potato fritter in a bun with chutneys - Mumbai's burger!"),
+//                     createMenuItem("Pani Puri", 5.00, "Crispy shells filled with spiced water, tamarind, and chickpeas."),
+//                     createMenuItem("Aloo Tikki Chat", 6.50, "Potato patties topped with yogurt, chutneys, and sev.")
+//                 );
+//                 break;
+//             default:
+//                 menuItems = Arrays.asList(
+//                     createMenuItem("Special Combo", 12.00, "Chef's special combination meal."),
+//                     createMenuItem("Fresh Salad", 7.50, "Mixed greens with seasonal vegetables and dressing."),
+//                     createMenuItem("Soft Drink", 2.50, "Choice of cola, lemon-lime, or orange soda.")
+//                 );
 //         }
-//     }
-
-//     private void seedMenuItems(Long foodTruckId) {
-//         List<MenuItem> menuItems = Arrays.asList(
-//                 createMenuItem("Classic Burger", 9.50,
-//                         "A juicy beef patty with lettuce, tomato, and onion on a toasted bun."),
-//                 createMenuItem("Spicy Veggie Wrap", 8.25,
-//                         "A spinach tortilla with spicy hummus, avocado, and fresh veggies."),
-//                 createMenuItem("Sweet Potato Fries", 4.50,
-//                         "Crispy sweet potato fries served with a side of chipotle mayo."),
-//                 createMenuItem("Chicken Tacos", 11.00,
-//                         "Three grilled chicken tacos topped with pico de gallo and sour cream."),
-//                 createMenuItem("Cheese Quesadilla", 6.75,
-//                         "Melted cheese in a warm flour tortilla, served with guacamole."),
-//                 createMenuItem("Lemonade", 2.50, "Freshly squeezed lemonade."),
-//                 createMenuItem("Onion Rings", 3.50, "Golden fried onion rings served with a tangy dipping sauce."),
-//                 createMenuItem("Classic Margherita Pizza", 12.00,
-//                         "Classic pizza with fresh mozzarella, tomatoes, and basil."),
-//                 createMenuItem("Pad Thai Noodles", 10.50,
-//                         "Stir-fried rice noodles with shrimp, chicken, peanuts, and lime."),
-//                 createMenuItem("Butter Chicken", 15.00,
-//                         "Tender chicken cooked in a creamy tomato sauce, served with naan."),
-//                 createMenuItem("Chocolate Brownie", 5.00, "Rich and fudgy chocolate brownie."),
-//                 createMenuItem("Mineral Water", 1.50, "Bottled mineral water."));
 
 //         for (MenuItem item : menuItems) {
 //             try {
 //                 menuItemService.saveMenuItem(foodTruckId, item);
-//                 System.out.println("   - Menu item seeded: " + item.getName() + " (FoodTruck ID: " + foodTruckId + ")");
+//                 System.out.println("    - Menu item seeded: " + item.getName() + " (FoodTruck ID: " + foodTruckId + ")");
 //             } catch (Exception e) {
-//                 System.err.println("   - Failed to seed menu item: " + item.getName() + ". Error: " + e.getMessage());
+//                 System.err.println("    - Failed to seed menu item: " + item.getName() + ". Error: " + e.getMessage());
 //             }
 //         }
 //     }

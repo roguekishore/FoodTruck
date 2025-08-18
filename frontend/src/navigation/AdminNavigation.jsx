@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, Users, MapPin, FileText, LogOut } from 'lucide-react';
+import { Shield, Users, MapPin, FileText, LogOut, Search } from 'lucide-react';
 import '../css/Navigation.css';
 
 const AdminNavigation = ({ activeSection, setActiveSection, onLogout, user }) => {
@@ -8,12 +8,13 @@ const AdminNavigation = ({ activeSection, setActiveSection, onLogout, user }) =>
       <div className="nav-container">
         <div className="nav-brand">
           <Shield className="truck-icon" />
-          <span>FoodTruck Pro - Admin</span>
+          <span>Admin</span>
         </div>
         <div className="nav-links">
           {[
             { key: 'dashboard', label: 'Dashboard', icon: FileText },
             { key: 'reviewers', label: 'Assign Reviewers', icon: Users },
+            { key: 'inspectors', label: 'Assign Inspectors', icon: Search },
             { key: 'regions', label: 'Regional View', icon: MapPin },
             { key: 'applications', label: 'Applications', icon: FileText }
           ].map((section) => (
@@ -29,7 +30,7 @@ const AdminNavigation = ({ activeSection, setActiveSection, onLogout, user }) =>
         </div>
         {user && (
           <div className="nav-user">
-            <span className="user-info">Admin: {user.name}</span>
+            {/* <span className="user-info">Admin: {user.name}</span> */}
             <button onClick={onLogout} className="logout-btn">
               <LogOut size={18} className="logout-icon" />
               Logout

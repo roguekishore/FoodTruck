@@ -8,7 +8,7 @@ const VendorNavigation = ({ activeSection, setActiveSection, onLogout, user }) =
       <div className="nav-container">
         <div className="nav-brand">
           <Truck className="truck-icon" />
-          <span>FoodTruck Pro - Vendor</span>
+          <span>Vendor</span>
         </div>
         <div className="nav-links">
           {['home', 'brands', 'trucks', 'menu'].map((section) => (
@@ -23,7 +23,6 @@ const VendorNavigation = ({ activeSection, setActiveSection, onLogout, user }) =
         </div>
         {user && (
           <div className="nav-user">
-            <span className="user-info">Welcome, {user.name}</span>
             <button onClick={onLogout} className="logout-btn">
               <LogOut size={18} className="logout-icon" />
               Logout

@@ -2,6 +2,7 @@ package com.examly.springapp.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.examly.springapp.model.Application;
 import com.examly.springapp.model.Brand;
@@ -21,11 +22,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class FoodTruckService {
-
     @Autowired
     private FoodTruckRepository foodTruckRepository;
-
+    @Autowired
+    private ApplicationService applicationService;
+    
     @Autowired
     private BrandRepository brandRepository;
 
@@ -117,7 +120,6 @@ public class FoodTruckService {
 
         existingFoodTruck.setOperatingRegion(updatedFoodTruck.getOperatingRegion());
         existingFoodTruck.setLocation(updatedFoodTruck.getLocation());
-        existingFoodTruck.setPhoneNumber(updatedFoodTruck.getPhoneNumber());
         existingFoodTruck.setCuisineSpecialties(updatedFoodTruck.getCuisineSpecialties());
         existingFoodTruck.setMenuHighlights(updatedFoodTruck.getMenuHighlights());
 
@@ -133,9 +135,6 @@ public class FoodTruckService {
         }
         if (updatedFoodTruck.getLocation() != null) {
             existingFoodTruck.setLocation(updatedFoodTruck.getLocation());
-        }
-        if (updatedFoodTruck.getPhoneNumber() != null) {
-            existingFoodTruck.setPhoneNumber(updatedFoodTruck.getPhoneNumber());
         }
         if (updatedFoodTruck.getCuisineSpecialties() != null) {
             existingFoodTruck.setCuisineSpecialties(updatedFoodTruck.getCuisineSpecialties());
@@ -156,5 +155,41 @@ public class FoodTruckService {
         }
 
         return foodTruckRepository.saveAll(foodTrucks);
+    }
+
+    @Transactional
+    public FoodTruck createFoodTruck(Long brandId, FoodTruckCreationDTO dto) {
+        try {
+            FoodTruck foodTruck = dto.getFoodTruck();
+            
+            // Set brand
+            Brand brand = brandRepository.findById(brandId)
+                .orElseThrow(() -> new RuntimeException("Brand not found"));
+            foodTruck.setBrand(brand);
+            
+            // Set default application status
+            foodTruck.setApplicationStatus(Application.ApplicationStatus.SUBMITTED);
+            
+            // Save food truck first
+            FoodTruck savedFoodTruck = foodTruckRepository.save(foodTruck);
+            
+            // Create application
+            Application application = new Application();
+            application.setFoodTruck(savedFoodTruck);
+            application.setSubmissionDate(LocalDateTime.now());
+            application.setStatus(Application.ApplicationStatus.SUBMITTED);
+            
+            // Save application
+            applicationService.save(application);
+            
+            // Process documents if any
+            if (dto.getDocuments() != null && !dto.getDocuments().isEmpty()) {
+                // Process documents logic here
+            }
+            
+            return savedFoodTruck;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create food truck: " + e.getMessage());
+        }
     }
 }

@@ -91,3 +91,19 @@
   transform: translateX(-2px);
 }
 
+.nav-link {
+  /* ... existing styles */
+  display: flex;
+  align-items: center; /* This centers the items vertically */
+  gap: 0.5rem; /* This provides a consistent space between the icon and text */
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.nav-link svg {
+  /* This ensures the icons are sized correctly and don't affect padding */
+  flex-shrink: 0;
+}
+

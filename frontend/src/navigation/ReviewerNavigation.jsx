@@ -8,7 +8,7 @@ const ReviewerNavigation = ({ activeSection, setActiveSection, onLogout, user })
       <div className="nav-container">
         <div className="nav-brand">
           <FileCheck className="truck-icon" />
-          <span>FoodTruck Pro - Reviewer</span>
+          <span>Reviewer</span>
         </div>
         <div className="nav-links">
           {[
@@ -29,7 +29,7 @@ const ReviewerNavigation = ({ activeSection, setActiveSection, onLogout, user })
         </div>
         {user && (
           <div className="nav-user">
-            <span className="user-info">Reviewer: {user.name}</span>
+            {/* <span className="user-info">Reviewer: {user.name}</span> */}
             <button onClick={onLogout} className="logout-btn">
               <LogOut size={18} className="logout-icon" />
               Logout
