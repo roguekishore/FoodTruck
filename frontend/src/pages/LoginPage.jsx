@@ -31,8 +31,12 @@ const Login = ({ onLogin, switchToRegister }) => {
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Login failed');
+                let errorMsg = 'Login failed';
+                try {
+                    const errorData = await response.json();
+                    errorMsg = errorData.message || errorMsg;
+                } catch (e) {}
+                throw new Error(errorMsg);
             }
 
             const data = await response.json();

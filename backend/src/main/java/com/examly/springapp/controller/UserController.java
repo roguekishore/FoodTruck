@@ -2,6 +2,9 @@ package com.examly.springapp.controller;
 
 import com.examly.springapp.model.User;
 import com.examly.springapp.service.UserService;
+import com.examly.springapp.exception.DuplicateUserEmailException;
+import com.examly.springapp.exception.UserNotFoundException;
+import com.examly.springapp.exception.InvalidUserPasswordException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,8 +25,8 @@ public class UserController {
         try {
             User registeredUser = userService.register(user);
             return ResponseEntity.ok(registeredUser);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (DuplicateUserEmailException | IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 
@@ -33,11 +36,11 @@ public class UserController {
             String email = credentials.get("email");
             String password = credentials.get("password");
             String role = credentials.get("role");
-            
+
             User authenticatedUser = userService.login(email, password, role);
             return ResponseEntity.ok(authenticatedUser);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (UserNotFoundException | InvalidUserPasswordException | IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
     

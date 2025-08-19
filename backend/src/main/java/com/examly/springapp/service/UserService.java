@@ -2,6 +2,9 @@ package com.examly.springapp.service;
 
 import com.examly.springapp.model.User;
 import com.examly.springapp.repository.UserRepository;
+import com.examly.springapp.exception.DuplicateUserEmailException;
+import com.examly.springapp.exception.UserNotFoundException;
+import com.examly.springapp.exception.InvalidUserPasswordException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,7 +18,7 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-     public User register(User user) {
+    public User register(User user) {
         // Validate required fields
         if (user.getEmail() == null || user.getEmail().isEmpty()) {
             throw new IllegalArgumentException("Email is required");
@@ -29,7 +32,7 @@ public class UserService {
 
         // Check if email already exists
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("Email already in use");
+            throw new DuplicateUserEmailException("A user with this email already exists");
         }
 
         // Save user with plain password (not recommended for production)
@@ -38,14 +41,13 @@ public class UserService {
 
     public User login(String email, String password, String role) {
         Optional<User> userOptional = userRepository.findByEmail(email);
-        
         if (userOptional.isEmpty()) {
-            throw new IllegalArgumentException("Invalid email or password");
+            throw new UserNotFoundException("User not found");
         }
 
         User user = userOptional.get();
         if (!user.getPassword().equals(password)) {
-            throw new IllegalArgumentException("Invalid email or password");
+            throw new InvalidUserPasswordException("Invalid password");
         }
 
         // Verify role

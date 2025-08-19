@@ -53,7 +53,16 @@ const Register = ({ onRegister, switchToLogin }) => {
             onRegister(responseData);
 
         } catch (error) {
-            // ... error handling remains the same ...
+            let errorMsg = 'Registration failed';
+            if (error.response && error.response.data) {
+                // Try to get the error message for both vendor and user
+                if (typeof error.response.data === 'string') {
+                    errorMsg = error.response.data;
+                } else if (error.response.data.message) {
+                    errorMsg = error.response.data.message;
+                }
+            }
+            setError(errorMsg);
         }
     };
 

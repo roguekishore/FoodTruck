@@ -100,13 +100,42 @@ public class DataSeeder implements CommandLineRunner {
             // Save food truck
             FoodTruck savedFoodTruck = foodTruckService.saveFoodTruck(brand.getId(), foodTruck);
             System.out.println(" - FoodTruck seeded: " + savedFoodTruck.getLocation() + " (Brand: " + brandName + ")");
-            
+
             // Create application for the food truck - ALL SUBMITTED BY DEFAULT
-            Application application = createApplication(savedFoodTruck, Application.ApplicationStatus.SUBMITTED);
-            
-            // Create documents for the application
-            createDocuments(application, brandName);
-            
+            Application application = new Application();
+            application.setFoodTruck(savedFoodTruck);
+            application.setStatus(Application.ApplicationStatus.SUBMITTED);
+            application.setSubmissionDate(LocalDateTime.now().minusDays((long) (Math.random() * 30))); // Random date within last 30 days
+
+            // Initialize documents list if null
+            if (application.getDocuments() == null) {
+                application.setDocuments(new java.util.ArrayList<>());
+            }
+
+            // Create documents and add to application BEFORE saving
+            List<List<String>> documentsData = Arrays.asList(
+                Arrays.asList("Business License", "/documents/business_license_" + brandName.toLowerCase().replace(" ", "_") + ".pdf"),
+                Arrays.asList("Food Safety Certificate", "/documents/food_safety_" + brandName.toLowerCase().replace(" ", "_") + ".pdf"),
+                Arrays.asList("Insurance Certificate", "/documents/insurance_" + brandName.toLowerCase().replace(" ", "_") + ".pdf"),
+                Arrays.asList("Vehicle Registration", "/documents/vehicle_reg_" + brandName.toLowerCase().replace(" ", "_") + ".pdf"),
+                Arrays.asList("Health Department Permit", "/documents/health_permit_" + brandName.toLowerCase().replace(" ", "_") + ".pdf")
+            );
+
+            for (List<String> docData : documentsData) {
+                Document document = new Document();
+                document.setDocumentName(docData.get(0));
+                document.setFilePath(docData.get(1));
+                document.setApplication(application); // set parent
+                application.getDocuments().add(document); // add to parent's collection
+            }
+
+            // Save application (will cascade and save documents)
+            Application savedApplication = applicationService.save(application);
+            System.out.println(" - Application seeded: ID " + savedApplication.getId() + " (Status: " + savedApplication.getStatus() + ")");
+            for (Document doc : savedApplication.getDocuments()) {
+                System.out.println("    - Document seeded: " + doc.getDocumentName() + " (Application ID: " + savedApplication.getId() + ")");
+            }
+
             // Seed reduced menu items (3 items)
             seedReducedMenuItems(savedFoodTruck.getId(), cuisineSpecialties);
 
