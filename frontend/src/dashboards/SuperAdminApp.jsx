@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import SuperAdminNavigation from '../navigation/SuperAdminNavigation';
 // import { SuperAdminApiProvider } from './context/SuperAdminApiContext'; // Placeholder for future
 
-const SuperAdminApp = ({ user, onLogout }) => {
+const SuperAdminApp = ({ user, onLogout, onProfileUpdate }) => {
   const [activeSection, setActiveSection] = useState('dashboard');
 
   const handleNavLinkClick = (section) => {
@@ -38,6 +38,7 @@ const SuperAdminApp = ({ user, onLogout }) => {
         activeSection={activeSection}
         setActiveSection={handleNavLinkClick}
         onLogout={handleLogout}
+        onProfileUpdate={onProfileUpdate}
         user={user}
       />
       <div className='app-wrapper'>

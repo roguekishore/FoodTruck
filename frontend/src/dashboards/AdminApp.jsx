@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AdminNavigation from '../navigation/AdminNavigation';
 import '../css/AdminApp.css';
 
-const AdminApp = ({ user, onLogout }) => {
+const AdminApp = ({ user, onLogout, onProfileUpdate }) => {
   const [activeSection, setActiveSection] = useState('dashboard');
 
   const handleNavLinkClick = (section) => {
@@ -37,6 +37,7 @@ const AdminApp = ({ user, onLogout }) => {
         activeSection={activeSection}
         setActiveSection={handleNavLinkClick}
         onLogout={handleLogout}
+        onProfileUpdate={onProfileUpdate}
         user={user}
       />
       <div className='app-wrapper'>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import InspectorNavigation from '../navigation/InspectorNavigation';
 import '../css/InspectorApp.css';
 
-const InspectorApp = ({ user, onLogout }) => {
+const InspectorApp = ({ user, onLogout, onProfileUpdate }) => {
   const [activeSection, setActiveSection] = useState('dashboard');
 
   const handleNavLinkClick = (section) => {
@@ -35,6 +35,7 @@ const InspectorApp = ({ user, onLogout }) => {
         activeSection={activeSection}
         setActiveSection={handleNavLinkClick}
         onLogout={handleLogout}
+        onProfileUpdate={onProfileUpdate}
         user={user}
       />
       <div className='app-wrapper'>

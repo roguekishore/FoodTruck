@@ -5,6 +5,7 @@ import com.examly.springapp.service.UserService;
 import com.examly.springapp.exception.DuplicateUserEmailException;
 import com.examly.springapp.exception.UserNotFoundException;
 import com.examly.springapp.exception.InvalidUserPasswordException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -62,13 +63,17 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> update(@PathVariable Long id, @RequestBody User updatedUser) {
-        return userService.findById(id)
-                .map(existing -> {
-                    updatedUser.setId(id);
-                    return ResponseEntity.ok(userService.save(updatedUser));
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody User updatedUser) {
+        try {
+            User updated = userService.updateProfile(id, updatedUser);
+            return ResponseEntity.ok(updated);
+        } catch (DuplicateUserEmailException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", e.getMessage()));
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Failed to update user profile"));
+        }
     }
 
     @DeleteMapping("/{id}")

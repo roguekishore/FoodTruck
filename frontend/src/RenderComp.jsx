@@ -15,12 +15,14 @@ const RenderComp = () => {
     const userId = localStorage.getItem('userId');
     const userName = localStorage.getItem('userName');
     const userRole = localStorage.getItem('userRole');
+    const userEmail = localStorage.getItem('userEmail');
     
     if (userId && userName && userRole) {
       return {
         id: userId,
         name: userName,
-        role: userRole
+        role: userRole,
+        email: userEmail
       };
     }
     return null;
@@ -31,11 +33,13 @@ const RenderComp = () => {
     localStorage.setItem('userId', userData.id);
     localStorage.setItem('userName', userData.name);
     localStorage.setItem('userRole', userData.role);
+    localStorage.setItem('userEmail', userData.email);
     
     setUser({
       id: userData.id,
       name: userData.name,
-      role: userData.role
+      role: userData.role,
+      email: userData.email
     });
     setIsAuthenticated(true);
   };
@@ -45,11 +49,13 @@ const RenderComp = () => {
     localStorage.setItem('userId', userData.id);
     localStorage.setItem('userName', userData.name);
     localStorage.setItem('userRole', userData.role);
+    localStorage.setItem('userEmail', userData.email);
     
     setUser({
       id: userData.id,
       name: userData.name,
-      role: userData.role
+      role: userData.role,
+      email: userData.email
     });
     setIsAuthenticated(true);
   };
@@ -58,9 +64,26 @@ const RenderComp = () => {
     localStorage.removeItem('userId');
     localStorage.removeItem('userName');
     localStorage.removeItem('userRole');
+    localStorage.removeItem('userEmail');
     setUser(null);
     setIsAuthenticated(false);
     setShowLogin(true);
+  };
+
+  const handleProfileUpdate = (updatedUser) => {
+    // Update localStorage
+    localStorage.setItem('userId', updatedUser.id);
+    localStorage.setItem('userName', updatedUser.name);
+    localStorage.setItem('userRole', updatedUser.role || user.role);
+    localStorage.setItem('userEmail', updatedUser.email);
+    
+    // Update the user state
+    setUser({
+      id: updatedUser.id,
+      name: updatedUser.name,
+      role: updatedUser.role || user.role,
+      email: updatedUser.email
+    });
   };
 
   const switchToRegister = () => {
@@ -78,15 +101,15 @@ const RenderComp = () => {
 
     switch (user.role.toUpperCase()) {
       case 'VENDOR':
-        return <FoodTruckVendorApp user={user} onLogout={handleLogout} />;
+        return <FoodTruckVendorApp user={user} onLogout={handleLogout} onProfileUpdate={handleProfileUpdate} />;
       case 'ADMIN':
-        return <AdminApp user={user} onLogout={handleLogout} />;
+        return <AdminApp user={user} onLogout={handleLogout} onProfileUpdate={handleProfileUpdate} />;
       case 'INSPECTOR':
-        return <InspectorApp user={user} onLogout={handleLogout} />;
+        return <InspectorApp user={user} onLogout={handleLogout} onProfileUpdate={handleProfileUpdate} />;
       case 'REVIEWER':
-        return <ReviewerApp user={user} onLogout={handleLogout} />;
+        return <ReviewerApp user={user} onLogout={handleLogout} onProfileUpdate={handleProfileUpdate} />;
       case 'SUPER_ADMIN':
-        return <SuperAdminApp user={user} onLogout={handleLogout} />;
+        return <SuperAdminApp user={user} onLogout={handleLogout} onProfileUpdate={handleProfileUpdate} />;
       default:
         return (
           <div className="role-app">

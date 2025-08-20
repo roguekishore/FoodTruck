@@ -60,7 +60,16 @@ public class VendorService {
         }
     
         if (updatedVendor.getEmail() != null) {
+            // Check if new email is already taken by another vendor
+            Optional<Vendor> emailVendor = vendorRepository.findByEmailIgnoreCase(updatedVendor.getEmail());
+            if (emailVendor.isPresent() && !emailVendor.get().getId().equals(id)) {
+                throw new DuplicateVendorNameException("A vendor with this email already exists");
+            }
             existingVendor.setEmail(updatedVendor.getEmail());
+        }
+
+        if (updatedVendor.getPassword() != null && !updatedVendor.getPassword().trim().isEmpty()) {
+            existingVendor.setPassword(updatedVendor.getPassword());
         }
 
         return vendorRepository.save(existingVendor);

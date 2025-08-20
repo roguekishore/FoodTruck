@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ReviewerNavigation from '../navigation/ReviewerNavigation';
 import '../css/ReviewerApp.css';
 
-const ReviewerApp = ({ user, onLogout }) => {
+const ReviewerApp = ({ user, onLogout, onProfileUpdate }) => {
   const [activeSection, setActiveSection] = useState('dashboard');
 
   const handleNavLinkClick = (section) => {
@@ -36,6 +36,7 @@ const ReviewerApp = ({ user, onLogout }) => {
         activeSection={activeSection}
         setActiveSection={handleNavLinkClick}
         onLogout={handleLogout}
+        onProfileUpdate={onProfileUpdate}
         user={user}
       />
       <div className='app-wrapper'>

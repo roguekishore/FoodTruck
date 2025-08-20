@@ -71,22 +71,29 @@ public class VendorController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Vendor> putVendor(@PathVariable Long id, @RequestBody Vendor vendor) {
+    public ResponseEntity<?> putVendor(@PathVariable Long id, @RequestBody Vendor vendor) {
         try {
             Vendor updatedVendor = vendorService.putVendor(id, vendor);
             return new ResponseEntity<>(updatedVendor, HttpStatus.OK);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            // Check if it's a duplicate email error
+            if (e.getMessage().contains("email already exists")) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(Collections.singletonMap("message", e.getMessage()));
+            }
+            return ResponseEntity.badRequest()
+                    .body(Collections.singletonMap("message", e.getMessage()));
         }
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Vendor> patchVendor(@PathVariable Long id, @RequestBody Vendor vendor) {
+    public ResponseEntity<?> patchVendor(@PathVariable Long id, @RequestBody Vendor vendor) {
         try {
             Vendor patchedVendor = vendorService.patchVendor(id, vendor);
             return new ResponseEntity<>(patchedVendor, HttpStatus.OK);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.badRequest()
+                    .body(Collections.singletonMap("message", e.getMessage()));
         }
     }
 

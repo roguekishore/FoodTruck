@@ -80,4 +80,28 @@ public class UserService {
     public List<User> findByRole(User.Role role) {
         return userRepository.findByRole(role);
     }
+
+    public User updateProfile(Long id, User updatedUser) {
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
+
+        if (updatedUser.getName() != null && !updatedUser.getName().trim().isEmpty()) {
+            existingUser.setName(updatedUser.getName());
+        }
+    
+        if (updatedUser.getEmail() != null && !updatedUser.getEmail().trim().isEmpty()) {
+            // Check if new email is already taken by another user
+            Optional<User> emailUser = userRepository.findByEmail(updatedUser.getEmail());
+            if (emailUser.isPresent() && !emailUser.get().getId().equals(id)) {
+                throw new DuplicateUserEmailException("A user with this email already exists");
+            }
+            existingUser.setEmail(updatedUser.getEmail());
+        }
+
+        if (updatedUser.getPassword() != null && !updatedUser.getPassword().trim().isEmpty()) {
+            existingUser.setPassword(updatedUser.getPassword());
+        }
+
+        return userRepository.save(existingUser);
+    }
 }

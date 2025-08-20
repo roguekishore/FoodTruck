@@ -7,7 +7,7 @@ import VendorNavigation from '../navigation/VendorNavigation';
 import { ApiProvider } from '../context/ApiContext';
 // import './App.css';
 
-const FoodTruckVendorApp = ({ user, onLogout }) => {
+const FoodTruckVendorApp = ({ user, onLogout, onProfileUpdate }) => {
   const [activeSection, setActiveSection] = useState('home');
   const [selectedBrand, setSelectedBrand] = useState(null);
   const [selectedFoodTruck, setSelectedFoodTruck] = useState(null);
@@ -69,6 +69,7 @@ const FoodTruckVendorApp = ({ user, onLogout }) => {
           activeSection={activeSection}
           setActiveSection={handleNavLinkClick}
           onLogout={handleLogout}
+          onProfileUpdate={onProfileUpdate}
           user={user}
         />
         <div className='app-wrapper'>
