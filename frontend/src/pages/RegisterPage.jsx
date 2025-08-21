@@ -130,6 +130,7 @@ const Register = ({ onRegister, switchToLogin }) => {
                         >
                             Admin
                         </button>
+
                     </div>
 
                     <form className="auth-form" onSubmit={handleSubmit}>

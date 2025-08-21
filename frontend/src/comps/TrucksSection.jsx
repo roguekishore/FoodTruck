@@ -64,6 +64,8 @@ const TrucksSection = ({ brand, onSelectFoodTruck, onBack }) => {
       const newTruck = await createFoodTruck(brand.id, formData);
       setFoodTrucks(prev => [...prev, newTruck]);
       setShowTruckForm(false);
+      // Refresh the food trucks list to ensure latest data
+      await fetchFoodTrucks();
     } catch (err) {
       setError('Failed to create food truck.');
       console.error('Failed to create food truck:', err);
@@ -78,18 +80,28 @@ const TrucksSection = ({ brand, onSelectFoodTruck, onBack }) => {
       return;
     }
     
+    console.log('TrucksSection - updating truck:', currentTruck.id, 'with data:', formData);
     setLoading(true);
     try {
       const updatedTruck = await updateFoodTruck(currentTruck.id, formData);
+      console.log('TrucksSection - update successful:', updatedTruck);
+      
+      // Update the local state immediately
       setFoodTrucks(prev => prev.map(truck =>
-        truck.id === currentTruck.id ? updatedTruck.data : truck
+        truck.id === currentTruck.id ? updatedTruck : truck
       ));
+      
+      // Close the form and clear current truck
       setShowTruckForm(false);
       setCurrentTruck(null);
       setIsEditing(false);
+      
+      // Refresh the food trucks list to ensure latest data from server
+      await fetchFoodTrucks();
     } catch (err) {
-      setError('Failed to update food truck.');
-      console.error('Failed to update food truck:', err);
+      console.error('TrucksSection - update failed:', err);
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to update food truck.';
+      setError(`Failed to update food truck: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -241,6 +253,7 @@ const TrucksSection = ({ brand, onSelectFoodTruck, onBack }) => {
             setIsEditing(false);
           }}
           submitButtonText={isEditing ? 'Update Food Truck' : 'Create Food Truck'}
+          isEditing={isEditing}
         />
       </FormModal>
     </div>

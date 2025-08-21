@@ -69,7 +69,19 @@ export const ApiProvider = ({ children }) => {
     return response.data;
   };
   
-  const updateFoodTruck = async (foodTruckId, data) => api.put(`/foodtrucks/${foodTruckId}`, data);
+  const updateFoodTruck = async (foodTruckId, data) => {
+    try {
+      console.log('ApiContext - updating food truck:', foodTruckId, 'with data:', data);
+      const response = await api.put(`/foodtrucks/${foodTruckId}`, data);
+      console.log('ApiContext - update response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('ApiContext - update food truck error:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      throw error;
+    }
+  };
   const deleteFoodTruck = async (foodTruckId) => api.delete(`/foodtrucks/${foodTruckId}`);
 
   // --- Application Endpoints ---
@@ -94,7 +106,10 @@ export const ApiProvider = ({ children }) => {
     return response.data;
   };
   
-  const updateMenuItem = async (menuItemId, data) => api.put(`/menuitems/${menuItemId}`, data);
+  const updateMenuItem = async (menuItemId, data) => {
+    const response = await api.put(`/menuitems/${menuItemId}`, data);
+    return response.data;
+  };
   const deleteMenuItem = async (menuItemId) => api.delete(`/menuitems/${menuItemId}`);
   
 

@@ -4,6 +4,7 @@ import com.examly.springapp.model.Application;
 import com.examly.springapp.model.Review;
 import com.examly.springapp.repository.ApplicationRepository;
 import com.examly.springapp.repository.ReviewRepository;
+import com.examly.springapp.repository.FoodTruckRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +23,9 @@ public class ReviewService {
     
     @Autowired
     private ApplicationRepository applicationRepository;
+    
+    @Autowired
+    private FoodTruckRepository foodTruckRepository;
 
     public ReviewService(ReviewRepository reviewRepository) {
         this.reviewRepository = reviewRepository;
@@ -103,6 +107,13 @@ public class ReviewService {
                     application.setStatus(Application.ApplicationStatus.IN_REVIEW);
                     break;
             }
+            
+            // Also update the FoodTruck application status to keep them synchronized
+            if (application.getFoodTruck() != null) {
+                application.getFoodTruck().setApplicationStatus(application.getStatus());
+                foodTruckRepository.save(application.getFoodTruck());
+            }
+            
             applicationRepository.save(application);
         }
         

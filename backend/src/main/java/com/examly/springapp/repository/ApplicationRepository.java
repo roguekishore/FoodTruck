@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
@@ -18,4 +19,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     List<Application> getApplicationsByStatus(@Param("status") Application.ApplicationStatus status);
     
     Page<Application> findByStatus(Application.ApplicationStatus status, Pageable pageable);
+    
+    Optional<Application> findByFoodTruckId(Long foodTruckId);
 }

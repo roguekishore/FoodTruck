@@ -37,6 +37,8 @@ const MenuSection = ({ foodTruck, onBack }) => {
       const newItem = await createMenuItem(foodTruck.id, formData);
       setMenuItems(prev => [...prev, newItem]);
       setShowMenuItemForm(false);
+      // Refresh the menu items list to ensure latest data
+      await fetchMenuItems();
     } catch (err) {
       setError('Failed to create menu item.');
       console.error('Failed to create menu item:', err);
@@ -49,12 +51,19 @@ const MenuSection = ({ foodTruck, onBack }) => {
     setLoading(true);
     try {
       const updatedItem = await updateMenuItem(currentMenuItem.id, formData);
+      
+      // Update the local state immediately
       setMenuItems(prev => prev.map(item =>
         item.id === currentMenuItem.id ? updatedItem : item
       ));
+      
+      // Close the form and clear current item
       setShowMenuItemForm(false);
       setCurrentMenuItem(null);
       setIsEditing(false);
+      
+      // Refresh the menu items list to ensure latest data from server
+      await fetchMenuItems();
     } catch (err) {
       setError('Failed to update menu item.');
       console.error('Failed to update menu item:', err);
@@ -158,6 +167,7 @@ const MenuSection = ({ foodTruck, onBack }) => {
             setIsEditing(false);
           }}
           submitButtonText={isEditing ? 'Update Menu Item' : 'Create Menu Item'}
+          isEditing={isEditing}
         />
       </FormModal>
     </div>

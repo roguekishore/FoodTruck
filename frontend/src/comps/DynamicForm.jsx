@@ -9,6 +9,7 @@ const DynamicForm = ({
   onCancel,
   submitButtonText = 'Submit',
   cancelButtonText = 'Cancel',
+  isEditing = false, // Add this prop to distinguish between create and edit
 }) => {
   const [formData, setFormData] = useState(initialData);
   const [errors, setErrors] = useState({});
@@ -109,12 +110,18 @@ const DynamicForm = ({
       }
     });
     setFormData({ ...initialFormData, ...initialData });
+    
+    // Clear any previous errors when form data changes
+    setErrors({});
 
-    // Initialize with one empty document for food truck forms
-    if (entityType === 'foodTruck' && documents.length === 0) {
+    // Initialize with one empty document for food truck forms only when creating
+    if (entityType === 'foodTruck' && !isEditing && documents.length === 0) {
       setDocuments([{ documentName: '', filePath: '' }]);
+    } else if (isEditing) {
+      // Clear documents for editing
+      setDocuments([]);
     }
-  }, [entityType, initialData]);
+  }, [entityType, initialData, isEditing]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -175,8 +182,8 @@ const DynamicForm = ({
       }
     });
 
-    // Validate documents for food truck forms
-    if (entityType === 'foodTruck') {
+    // Validate documents for food truck forms only when creating (not editing)
+    if (entityType === 'foodTruck' && !isEditing) {
       documents.forEach((doc, index) => {
         if (!doc.documentName.trim()) {
           newErrors[`document_${index}_documentName`] = 'Document name is required';
@@ -195,22 +202,33 @@ const DynamicForm = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log('Form submission - isEditing:', isEditing, 'entityType:', entityType);
+    console.log('Form data before validation:', formData);
+    
     if (validateForm()) {
       if (entityType === 'foodTruck') {
-        // For food truck, create the DTO structure
-        const foodTruckData = {
-          foodTruck: formData,
-          vendorId: localStorage.getItem('userId'), // Get from localStorage
-          documents: documents
-            .filter(doc => doc.documentName.trim()) // Only include documents with names
-            .map(doc => [doc.documentName, doc.filePath])
-        };
-        console.log('Submitting food truck data:', foodTruckData);
-        onSubmit(foodTruckData);
+        if (isEditing) {
+          // For editing, send only the food truck data without documents
+          console.log('Submitting food truck update data:', formData);
+          onSubmit(formData);
+        } else {
+          // For creation, create the DTO structure with documents
+          const foodTruckData = {
+            foodTruck: formData,
+            vendorId: localStorage.getItem('userId'), // Get from localStorage
+            documents: documents
+              .filter(doc => doc.documentName.trim()) // Only include documents with names
+              .map(doc => [doc.documentName, doc.filePath])
+          };
+          console.log('Submitting food truck creation data:', foodTruckData);
+          onSubmit(foodTruckData);
+        }
       } else {
         console.log('Submitting form data:', formData);
         onSubmit(formData);
       }
+    } else {
+      console.log('Form validation failed');
     }
   };
 
@@ -271,8 +289,8 @@ const DynamicForm = ({
           </div>
         ))}
 
-        {/* Document section for food truck forms */}
-        {config.hasDocuments && (
+        {/* Document section for food truck forms - only show for creation or when explicitly requested */}
+        {config.hasDocuments && !isEditing && (
           <div className="documents-section">
             <div className="documents-header">
               <h3 className="documents-title">

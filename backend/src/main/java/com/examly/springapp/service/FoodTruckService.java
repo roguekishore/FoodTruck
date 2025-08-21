@@ -146,6 +146,60 @@ public class FoodTruckService {
         return foodTruckRepository.save(existingFoodTruck);
     }
 
+    @Transactional
+    public FoodTruck updateFoodTruckWithDocuments(Long id, FoodTruckCreationDTO updateDTO) {
+        FoodTruck existingFoodTruck = foodTruckRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("FoodTruck not found with ID: " + id));
+
+        FoodTruck updatedData = updateDTO.getFoodTruck();
+        
+        // Update food truck fields
+        if (updatedData.getOperatingRegion() != null) {
+            existingFoodTruck.setOperatingRegion(updatedData.getOperatingRegion());
+        }
+        if (updatedData.getLocation() != null) {
+            existingFoodTruck.setLocation(updatedData.getLocation());
+        }
+        if (updatedData.getCuisineSpecialties() != null) {
+            existingFoodTruck.setCuisineSpecialties(updatedData.getCuisineSpecialties());
+        }
+        if (updatedData.getMenuHighlights() != null) {
+            existingFoodTruck.setMenuHighlights(updatedData.getMenuHighlights());
+        }
+
+        // Handle documents if provided
+        if (updateDTO.getDocuments() != null && !updateDTO.getDocuments().isEmpty()) {
+            // Find the existing application for this food truck
+            Application application = applicationRepository.findByFoodTruckId(id)
+                    .orElseThrow(() -> new RuntimeException("Application not found for food truck with ID: " + id));
+
+            // Create new documents
+            List<Document> newDocuments = new ArrayList<>();
+            for (List<String> docData : updateDTO.getDocuments()) {
+                if (docData.size() >= 2) {
+                    Document document = new Document();
+                    document.setDocumentName(docData.get(0));
+                    document.setFilePath(docData.get(1));
+                    document.setApplication(application);
+                    newDocuments.add(document);
+                }
+            }
+
+            // Replace existing documents with new ones
+            if (!newDocuments.isEmpty()) {
+                // Remove old documents
+                if (application.getDocuments() != null) {
+                    application.getDocuments().clear();
+                }
+                // Add new documents
+                application.setDocuments(newDocuments);
+                applicationRepository.save(application);
+            }
+        }
+
+        return foodTruckRepository.save(existingFoodTruck);
+    }
+
     public List<FoodTruck> saveAllFoodTrucks(Long brandId, List<FoodTruck> foodTrucks) {
         Brand brand = brandRepository.findById(brandId)
                 .orElseThrow(() -> new RuntimeException("Brand not found with ID: " + brandId));

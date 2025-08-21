@@ -102,6 +102,11 @@ public class UserService {
             existingUser.setPassword(updatedUser.getPassword());
         }
 
+        // Update role if provided
+        if (updatedUser.getRole() != null) {
+            existingUser.setRole(updatedUser.getRole());
+        }
+
         return userRepository.save(existingUser);
     }
 }

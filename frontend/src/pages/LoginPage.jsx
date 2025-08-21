@@ -60,6 +60,8 @@ const Login = ({ onLogin, switchToRegister }) => {
                 return 'Sign in to review food trucks';
             case 'ADMIN':
                 return 'Sign in to manage system settings';
+            case 'SUPER_ADMIN':
+                return 'Sign in to access super admin controls';
             default:
                 return 'Sign in to your account';
         }
@@ -71,6 +73,7 @@ const Login = ({ onLogin, switchToRegister }) => {
             case 'INSPECTOR': return 'Inspector';
             case 'REVIEWER': return 'Reviewer';
             case 'ADMIN': return 'Admin';
+            case 'SUPER_ADMIN': return 'Super Admin';
             default: return 'User';
         }
     };
@@ -140,6 +143,12 @@ const Login = ({ onLogin, switchToRegister }) => {
                                onClick={() => setUserType('ADMIN')}
                                className={userType === 'ADMIN' ? 'active' : ''}>
                                 Admin
+                            </a>
+                            <span> | </span>
+                            <a href="#" 
+                               onClick={() => setUserType('SUPER_ADMIN')}
+                               className={userType === 'SUPER_ADMIN' ? 'active' : ''}>
+                                Super Admin
                             </a>
                         </div>
                     </div>

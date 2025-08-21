@@ -21,7 +21,7 @@ public class User {
     private Role role;
 
     public enum Role {
-        ADMIN, INSPECTOR, REVIEWER
+        ADMIN, INSPECTOR, REVIEWER, SUPER_ADMIN
     }
 
     public User() {

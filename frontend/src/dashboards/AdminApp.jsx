@@ -942,6 +942,7 @@ const ApplicationsManagement = () => {
                         <small>{application.vendorEmail || 'N/A'}</small>
                       </div>
                     </td>
+                    
                     <td>{application.operatingRegion || 'N/A'}</td>
                     <td>{formatDate(application.submissionDate)}</td>
                     <td>

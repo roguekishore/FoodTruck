@@ -77,6 +77,17 @@ public class FoodTruckController {
         }
     }
 
+    // New endpoint for updating food truck with optional documents
+    @PutMapping("/{id}/with-documents")
+    public ResponseEntity<FoodTruck> updateFoodTruckWithDocuments(@PathVariable Long id, @RequestBody FoodTruckCreationDTO updateDTO) {
+        try {
+            FoodTruck updatedFoodTruck = foodTruckService.updateFoodTruckWithDocuments(id, updateDTO);
+            return new ResponseEntity<>(updatedFoodTruck, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @PostMapping("/bulk/{brandId}")
     public ResponseEntity<List<FoodTruck>> saveAllFoodTrucks(@PathVariable Long brandId,
             @RequestBody List<FoodTruck> foodTrucks) {

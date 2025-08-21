@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SuperAdminNavigation from '../navigation/SuperAdminNavigation';
-// import { SuperAdminApiProvider } from './context/SuperAdminApiContext'; // Placeholder for future
+import '../css/SuperAdminApp.css';
 
 const SuperAdminApp = ({ user, onLogout, onProfileUpdate }) => {
   const [activeSection, setActiveSection] = useState('dashboard');
@@ -20,19 +20,12 @@ const SuperAdminApp = ({ user, onLogout, onProfileUpdate }) => {
         return <SuperAdminDashboard />;
       case 'users':
         return <UserManagement />;
-      case 'roles':
-        return <RoleManagement />;
-      case 'audit':
-        return <AuditLogs />;
-      case 'settings':
-        return <SystemSettings />;
       default:
         return <SuperAdminDashboard />;
     }
   };
 
   return (
-    // <SuperAdminApiProvider> // Uncomment when SuperAdminApiProvider is ready
     <div>
       <SuperAdminNavigation
         activeSection={activeSection}
@@ -47,300 +40,664 @@ const SuperAdminApp = ({ user, onLogout, onProfileUpdate }) => {
         </div>
       </div>
     </div>
-    // </SuperAdminApiProvider>
   );
 };
 
-// Placeholder components for super admin functionality
-const SuperAdminDashboard = () => (
-  <div className="dashboard">
-    <h1>Super Admin Dashboard</h1>
-    <div className="stats-grid">
-      <div className="stat-card">
-        <h3>Total Users</h3>
-        <p className="stat-number">156</p>
-      </div>
-      <div className="stat-card">
-        <h3>Active Sessions</h3>
-        <p className="stat-number">42</p>
-      </div>
-      <div className="stat-card">
-        <h3>System Health</h3>
-        <p className="stat-number">98%</p>
-      </div>
-      <div className="stat-card">
-        <h3>Security Alerts</h3>
-        <p className="stat-number critical">3</p>
-      </div>
-    </div>
-    <div className="system-overview">
-      <h2>System Overview</h2>
-      <div className="overview-grid">
-        <div className="overview-item">
-          <h3>Recent Security Events</h3>
-          <div className="security-event">
-            <p>Failed login attempts from IP: 192.168.1.100</p>
-            <span className="event-time">5 minutes ago</span>
-          </div>
-          <div className="security-event">
-            <p>New user registration: reviewer@company.com</p>
-            <span className="event-time">1 hour ago</span>
-          </div>
-          <div className="security-event">
-            <p>Role change: John Doe promoted to Admin</p>
-            <span className="event-time">2 hours ago</span>
-          </div>
-        </div>
-        <div className="overview-item">
-          <h3>System Performance</h3>
-          <div className="performance-metric">
-            <span>CPU Usage:</span>
-            <span className="metric-value">65%</span>
-          </div>
-          <div className="performance-metric">
-            <span>Memory Usage:</span>
-            <span className="metric-value">78%</span>
-          </div>
-          <div className="performance-metric">
-            <span>Database Response:</span>
-            <span className="metric-value">120ms</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-);
+// Dashboard component with API integration
+const SuperAdminDashboard = () => {
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalAdmins: 0,
+    totalInspectors: 0,
+    totalReviewers: 0,
+    totalVendors: 0,
+    totalApplications: 0,
+    submittedApplications: 0,
+    approvedApplications: 0,
+    rejectedApplications: 0,
+    totalFoodTrucks: 0,
+    totalInspections: 0,
+    passedInspections: 0,
+    failedInspections: 0,
+    pendingInspections: 0,
+    totalReviews: 0,
+    approvedReviews: 0,
+    rejectedReviews: 0,
+    pendingReviews: 0,
+    applicationApprovalRate: 0,
+    inspectionPassRate: 0,
+    reviewApprovalRate: 0,
+    activeSessions: 0,
+    systemHealth: 0,
+    securityAlerts: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const BASE_URL = process.env.REACT_APP_URL;
 
-const UserManagement = () => (
-  <div className="user-management">
-    <h1>User Management</h1>
-    <div className="user-actions">
-      <button className="add-user-btn">Add New User</button>
-      <input type="text" placeholder="Search users..." className="user-search" />
-      <select className="role-filter">
-        <option value="all">All Roles</option>
-        <option value="VENDOR">Vendors</option>
-        <option value="ADMIN">Admins</option>
-        <option value="INSPECTOR">Inspectors</option>
-        <option value="REVIEWER">Reviewers</option>
-      </select>
-    </div>
-    <div className="users-table">
-      <div className="table-header">
-        <span>Name</span>
-        <span>Email</span>
-        <span>Role</span>
-        <span>Status</span>
-        <span>Last Login</span>
-        <span>Actions</span>
-      </div>
-      <div className="table-row">
-        <span>John Doe</span>
-        <span>john@example.com</span>
-        <span className="role-badge admin">ADMIN</span>
-        <span className="status-badge active">Active</span>
-        <span>2 hours ago</span>
-        <div className="user-actions">
-          <button className="edit-btn">Edit</button>
-          <button className="suspend-btn">Suspend</button>
-          <button className="delete-btn">Delete</button>
-        </div>
-      </div>
-      <div className="table-row">
-        <span>Sarah Johnson</span>
-        <span>sarah@example.com</span>
-        <span className="role-badge reviewer">REVIEWER</span>
-        <span className="status-badge active">Active</span>
-        <span>1 day ago</span>
-        <div className="user-actions">
-          <button className="edit-btn">Edit</button>
-          <button className="suspend-btn">Suspend</button>
-          <button className="delete-btn">Delete</button>
-        </div>
-      </div>
-      <div className="table-row">
-        <span>Mike Chen</span>
-        <span>mike@example.com</span>
-        <span className="role-badge inspector">INSPECTOR</span>
-        <span className="status-badge suspended">Suspended</span>
-        <span>1 week ago</span>
-        <div className="user-actions">
-          <button className="edit-btn">Edit</button>
-          <button className="activate-btn">Activate</button>
-          <button className="delete-btn">Delete</button>
-        </div>
-      </div>
-    </div>
-  </div>
-);
+  useEffect(() => {
+    fetchDashboardStats();
+  }, []);
 
-const RoleManagement = () => (
-  <div className="role-management">
-    <h1>Role Management</h1>
-    <div className="roles-grid">
-      <div className="role-card">
-        <h3>VENDOR</h3>
-        <p><strong>Users:</strong> 48</p>
-        <p><strong>Permissions:</strong></p>
-        <ul>
-          <li>Manage own brands</li>
-          <li>Manage food trucks</li>
-          <li>Update menu items</li>
-          <li>View inspection reports</li>
-        </ul>
-        <button className="edit-permissions-btn">Edit Permissions</button>
-      </div>
-      <div className="role-card">
-        <h3>ADMIN</h3>
-        <p><strong>Users:</strong> 8</p>
-        <p><strong>Permissions:</strong></p>
-        <ul>
-          <li>Assign reviewers</li>
-          <li>View regional data</li>
-          <li>Manage applications</li>
-          <li>Generate reports</li>
-        </ul>
-        <button className="edit-permissions-btn">Edit Permissions</button>
-      </div>
-      <div className="role-card">
-        <h3>INSPECTOR</h3>
-        <p><strong>Users:</strong> 12</p>
-        <p><strong>Permissions:</strong></p>
-        <ul>
-          <li>View assigned tasks</li>
-          <li>Submit inspection reports</li>
-          <li>Access location data</li>
-          <li>Update inspection status</li>
-        </ul>
-        <button className="edit-permissions-btn">Edit Permissions</button>
-      </div>
-      <div className="role-card">
-        <h3>REVIEWER</h3>
-        <p><strong>Users:</strong> 6</p>
-        <p><strong>Permissions:</strong></p>
-        <ul>
-          <li>Review applications</li>
-          <li>Approve/reject documents</li>
-          <li>Request changes</li>
-          <li>Generate review reports</li>
-        </ul>
-        <button className="edit-permissions-btn">Edit Permissions</button>
-      </div>
-    </div>
-  </div>
-);
+  const fetchDashboardStats = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${BASE_URL}/api/superadmin/dashboard/stats`);
+      if (response.ok) {
+        const data = await response.json();
+        setStats(data);
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-const AuditLogs = () => (
-  <div className="audit-logs">
-    <h1>Audit Logs</h1>
-    <div className="audit-filters">
-      <select className="action-filter">
-        <option value="all">All Actions</option>
-        <option value="login">Login Attempts</option>
-        <option value="role_change">Role Changes</option>
-        <option value="data_access">Data Access</option>
-        <option value="system_change">System Changes</option>
-      </select>
-      <select className="user-filter">
-        <option value="all">All Users</option>
-        <option value="admin">Admins</option>
-        <option value="suspicious">Suspicious Activity</option>
-      </select>
-      <input type="date" className="date-filter" />
-    </div>
-    <div className="logs-table">
-      <div className="log-entry suspicious">
-        <div className="log-time">2024-01-15 14:32:15</div>
-        <div className="log-user">unknown@suspicious.com</div>
-        <div className="log-action">Failed Login Attempt</div>
-        <div className="log-details">Multiple failed attempts from IP: 192.168.1.100</div>
-        <div className="log-severity critical">Critical</div>
-      </div>
-      <div className="log-entry">
-        <div className="log-time">2024-01-15 14:20:05</div>
-        <div className="log-user">admin@company.com</div>
-        <div className="log-action">Role Change</div>
-        <div className="log-details">Changed user John Doe role from REVIEWER to ADMIN</div>
-        <div className="log-severity normal">Normal</div>
-      </div>
-      <div className="log-entry">
-        <div className="log-time">2024-01-15 13:45:22</div>
-        <div className="log-user">reviewer@company.com</div>
-        <div className="log-action">Document Access</div>
-        <div className="log-details">Accessed vendor application documents for review</div>
-        <div className="log-severity normal">Normal</div>
-      </div>
-      <div className="log-entry">
-        <div className="log-time">2024-01-15 12:15:33</div>
-        <div className="log-user">super.admin@company.com</div>
-        <div className="log-action">System Configuration</div>
-        <div className="log-details">Modified system security settings</div>
-        <div className="log-severity high">High</div>
-      </div>
-    </div>
-  </div>
-);
+  if (loading) {
+    return <div className="loading">Loading dashboard...</div>;
+  }
 
-const SystemSettings = () => (
-  <div className="system-settings">
-    <h1>System Settings</h1>
-    <div className="settings-sections">
-      <div className="settings-section">
-        <h2>Security Settings</h2>
-        <div className="setting-item">
-          <label>Password Policy</label>
-          <select>
-            <option value="basic">Basic (8 characters)</option>
-            <option value="medium">Medium (12 characters + symbols)</option>
-            <option value="strong">Strong (16 characters + complexity)</option>
-          </select>
-        </div>
-        <div className="setting-item">
-          <label>Session Timeout (minutes)</label>
-          <input type="number" value="30" min="15" max="240" />
-        </div>
-        <div className="setting-item">
-          <label>Two-Factor Authentication</label>
-          <input type="checkbox" checked /> Enabled
-        </div>
-      </div>
-      <div className="settings-section">
-        <h2>Application Settings</h2>
-        <div className="setting-item">
-          <label>Max Application Review Time (days)</label>
-          <input type="number" value="7" min="1" max="30" />
-        </div>
-        <div className="setting-item">
-          <label>Auto-assign Reviewers</label>
-          <input type="checkbox" checked /> Enabled
-        </div>
-        <div className="setting-item">
-          <label>Inspection Reminder Days</label>
-          <input type="number" value="3" min="1" max="14" />
+  return (
+    <div className="dashboard">
+      <h1>Super Admin Dashboard</h1>
+      
+      {/* User Statistics */}
+      <div className="analytics-section">
+        <h2>User Statistics</h2>
+        <div className="stats-grid">
+          <div className="stat-card">
+            <h3>Total Users</h3>
+            <p className="stat-number">{stats.totalUsers}</p>
+          </div>
+          <div className="stat-card">
+            <h3>Admins</h3>
+            <p className="stat-number">{stats.totalAdmins}</p>
+          </div>
+          <div className="stat-card">
+            <h3>Inspectors</h3>
+            <p className="stat-number">{stats.totalInspectors}</p>
+          </div>
+          <div className="stat-card">
+            <h3>Reviewers</h3>
+            <p className="stat-number">{stats.totalReviewers}</p>
+          </div>
+          <div className="stat-card">
+            <h3>Vendors</h3>
+            <p className="stat-number">{stats.totalVendors}</p>
+          </div>
         </div>
       </div>
-      <div className="settings-section">
-        <h2>System Maintenance</h2>
-        <div className="setting-item">
-          <label>Database Backup Schedule</label>
-          <select>
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-          </select>
+
+      {/* Application Statistics */}
+      <div className="analytics-section">
+        <h2>Application Analytics</h2>
+        <div className="stats-grid">
+          <div className="stat-card">
+            <h3>Total Applications</h3>
+            <p className="stat-number">{stats.totalApplications}</p>
+          </div>
+          <div className="stat-card">
+            <h3>Submitted</h3>
+            <p className="stat-number">{stats.submittedApplications}</p>
+          </div>
+          <div className="stat-card">
+            <h3>Approved</h3>
+            <p className="stat-number success">{stats.approvedApplications}</p>
+          </div>
+          <div className="stat-card">
+            <h3>Rejected</h3>
+            <p className="stat-number critical">{stats.rejectedApplications}</p>
+          </div>
+          <div className="stat-card">
+            <h3>Approval Rate</h3>
+            <p className="stat-number">{stats.applicationApprovalRate}%</p>
+          </div>
         </div>
-        <div className="setting-item">
-          <label>Log Retention Period (days)</label>
-          <input type="number" value="90" min="30" max="365" />
+      </div>
+
+      {/* Inspection Statistics */}
+      <div className="analytics-section">
+        <h2>Inspection Analytics</h2>
+        <div className="stats-grid">
+          <div className="stat-card">
+            <h3>Total Inspections</h3>
+            <p className="stat-number">{stats.totalInspections}</p>
+          </div>
+          <div className="stat-card">
+            <h3>Passed</h3>
+            <p className="stat-number success">{stats.passedInspections}</p>
+          </div>
+          <div className="stat-card">
+            <h3>Failed</h3>
+            <p className="stat-number critical">{stats.failedInspections}</p>
+          </div>
+          <div className="stat-card">
+            <h3>Pending</h3>
+            <p className="stat-number warning">{stats.pendingInspections}</p>
+          </div>
+          <div className="stat-card">
+            <h3>Pass Rate</h3>
+            <p className="stat-number">{stats.inspectionPassRate}%</p>
+          </div>
         </div>
-        <button className="maintenance-btn">Run System Diagnostics</button>
+      </div>
+
+      {/* Review Statistics */}
+      <div className="analytics-section">
+        <h2>Review Analytics</h2>
+        <div className="stats-grid">
+          <div className="stat-card">
+            <h3>Total Reviews</h3>
+            <p className="stat-number">{stats.totalReviews}</p>
+          </div>
+          <div className="stat-card">
+            <h3>Approved</h3>
+            <p className="stat-number success">{stats.approvedReviews}</p>
+          </div>
+          <div className="stat-card">
+            <h3>Rejected</h3>
+            <p className="stat-number critical">{stats.rejectedReviews}</p>
+          </div>
+          <div className="stat-card">
+            <h3>Pending</h3>
+            <p className="stat-number warning">{stats.pendingReviews}</p>
+          </div>
+          <div className="stat-card">
+            <h3>Approval Rate</h3>
+            <p className="stat-number">{stats.reviewApprovalRate}%</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Food Truck & System Overview */}
+      <div className="analytics-section">
+        <h2>System Overview</h2>
+        <div className="stats-grid">
+          <div className="stat-card">
+            <h3>Total Food Trucks</h3>
+            <p className="stat-number">{stats.totalFoodTrucks}</p>
+          </div>
+          <div className="stat-card">
+            <h3>Active Sessions</h3>
+            <p className="stat-number">{stats.activeSessions}</p>
+          </div>
+          <div className="stat-card">
+            <h3>System Health</h3>
+            <p className="stat-number">{stats.systemHealth}%</p>
+          </div>
+          <div className="stat-card">
+            <h3>Security Alerts</h3>
+            <p className="stat-number critical">{stats.securityAlerts}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Insights */}
+      <div className="system-overview">
+        <h2>Quick Insights</h2>
+        <div className="overview-grid">
+          <div className="overview-item">
+            <h3>Application Workflow</h3>
+            <div className="insight-metric">
+              <span>Applications in Pipeline:</span>
+              <span className="metric-value">{stats.submittedApplications}</span>
+            </div>
+            <div className="insight-metric">
+              <span>Success Rate:</span>
+              <span className="metric-value">{stats.applicationApprovalRate}%</span>
+            </div>
+            <div className="insight-metric">
+              <span>Total Processed:</span>
+              <span className="metric-value">{stats.approvedApplications + stats.rejectedApplications}</span>
+            </div>
+          </div>
+          <div className="overview-item">
+            <h3>Inspection Overview</h3>
+            <div className="insight-metric">
+              <span>Inspection Backlog:</span>
+              <span className="metric-value">{stats.pendingInspections}</span>
+            </div>
+            <div className="insight-metric">
+              <span>Quality Pass Rate:</span>
+              <span className="metric-value">{stats.inspectionPassRate}%</span>
+            </div>
+            <div className="insight-metric">
+              <span>Total Completed:</span>
+              <span className="metric-value">{stats.passedInspections + stats.failedInspections}</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    <div className="settings-actions">
-      <button className="save-settings-btn">Save All Settings</button>
-      <button className="reset-settings-btn">Reset to Defaults</button>
+  );
+};
+
+// User Management component with API integration
+const UserManagement = () => {
+  const [users, setUsers] = useState([]);
+  const [vendors, setVendors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all');
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const BASE_URL = process.env.REACT_APP_URL;
+
+  useEffect(() => {
+    fetchUsersAndVendors();
+  }, []);
+
+  const fetchUsersAndVendors = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${BASE_URL}/api/superadmin/users`);
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(data.users || []);
+        setVendors(data.vendors || []);
+      }
+    } catch (error) {
+      console.error('Error fetching users and vendors:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId, isVendor = false) => {
+    if (window.confirm('Are you sure you want to delete this user?')) {
+      try {
+        const endpoint = isVendor ? 
+          `${BASE_URL}/api/superadmin/vendors/${userId}` : 
+          `${BASE_URL}/api/superadmin/users/${userId}`;
+        
+        const response = await fetch(endpoint, { method: 'DELETE' });
+        if (response.ok) {
+          fetchUsersAndVendors(); // Refresh the list
+        }
+      } catch (error) {
+        console.error('Error deleting user:', error);
+      }
+    }
+  };
+
+  const handleToggleStatus = async (userId) => {
+    try {
+      const response = await fetch(`${BASE_URL}/api/superadmin/users/${userId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'toggle' })
+      });
+      if (response.ok) {
+        fetchUsersAndVendors(); // Refresh the list
+      }
+    } catch (error) {
+      console.error('Error toggling user status:', error);
+    }
+  };
+
+  const handleEditUser = (user) => {
+    setEditingUser(user);
+    setShowEditModal(true);
+  };
+
+  const handleUpdateUser = async (updatedUserData) => {
+    try {
+      const endpoint = editingUser.userType === 'vendor' ? 
+        `${BASE_URL}/api/superadmin/vendors/${editingUser.id}` : 
+        `${BASE_URL}/api/superadmin/users/${editingUser.id}`;
+      
+      const response = await fetch(endpoint, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedUserData)
+      });
+      
+      if (response.ok) {
+        fetchUsersAndVendors(); // Refresh the list
+        setShowEditModal(false);
+        setEditingUser(null);
+      } else {
+        const error = await response.json();
+        alert(error.message || 'Failed to update user');
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+      alert('Failed to update user');
+    }
+  };
+
+  // Filter users and vendors based on search and role
+  const filteredData = () => {
+    let allData = [];
+    
+    // Add users with userType flag
+    if (roleFilter === 'all' || roleFilter !== 'VENDOR') {
+      allData = allData.concat(
+        users
+          .filter(user => roleFilter === 'all' || user.role === roleFilter)
+          .filter(user => 
+            user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.email.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+          .map(user => ({ ...user, userType: 'user' }))
+      );
+    }
+    
+    // Add vendors with userType flag
+    if (roleFilter === 'all' || roleFilter === 'VENDOR') {
+      allData = allData.concat(
+        vendors
+          .filter(vendor => 
+            vendor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            vendor.email.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+          .map(vendor => ({ ...vendor, userType: 'vendor', role: 'VENDOR' }))
+      );
+    }
+    
+    return allData;
+  };
+
+  if (loading) {
+    return <div className="loading">Loading users...</div>;
+  }
+
+  return (
+    <div className="user-management">
+      <h1>User Management</h1>
+      <div className="user-actions">
+        <button 
+          className="add-user-btn"
+          onClick={() => setShowAddUserModal(true)}
+        >
+          Add New User
+        </button>
+        <input 
+          type="text" 
+          placeholder="Search users..." 
+          className="user-search"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <select 
+          className="role-filter"
+          value={roleFilter}
+          onChange={(e) => setRoleFilter(e.target.value)}
+        >
+          <option value="all">All Roles</option>
+          <option value="VENDOR">Vendors</option>
+          <option value="ADMIN">Admins</option>
+          <option value="INSPECTOR">Inspectors</option>
+          <option value="REVIEWER">Reviewers</option>
+        </select>
+      </div>
+      <div className="users-table">
+        <div className="table-header">
+          <span>Name</span>
+          <span>Email</span>
+          <span>Role</span>
+          <span>Type</span>
+          <span>Actions</span>
+        </div>
+        {filteredData().map((item) => (
+          <div key={`${item.userType}-${item.id}`} className="table-row">
+            <span>{item.name}</span>
+            <span>{item.email}</span>
+            <span className={`role-badge ${item.role.toLowerCase()}`}>
+              {item.role}
+            </span>
+            <span className="user-type-badge">
+              {item.userType === 'vendor' ? 'Vendor' : 'User'}
+            </span>
+            <div className="user-actions">
+              <button 
+                className="edit-btn"
+                onClick={() => handleEditUser(item)}
+              >
+                Edit
+              </button>
+              {/* {item.userType === 'user' && (
+                <button 
+                  className="suspend-btn"
+                  onClick={() => handleToggleStatus(item.id)}
+                >
+                  Toggle Status
+                </button>
+              )} */}
+              <button 
+                className="delete-btn"
+                onClick={() => handleDeleteUser(item.id, item.userType === 'vendor')}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
+        {filteredData().length === 0 && (
+          <div className="no-data">No users found matching the criteria.</div>
+        )}
+      </div>
+      
+      {showAddUserModal && (
+        <AddUserModal 
+          onClose={() => setShowAddUserModal(false)}
+          onUserAdded={fetchUsersAndVendors}
+        />
+      )}
+      
+      {showEditModal && editingUser && (
+        <EditUserModal 
+          user={editingUser}
+          onClose={() => {
+            setShowEditModal(false);
+            setEditingUser(null);
+          }}
+          onUserUpdated={handleUpdateUser}
+        />
+      )}
     </div>
-  </div>
-);
+  );
+};
+
+// Simple Add User Modal
+const AddUserModal = ({ onClose, onUserAdded }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    role: 'ADMIN'
+  });
+  const BASE_URL = process.env.REACT_APP_URL;
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(`${BASE_URL}/api/superadmin/users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      
+      if (response.ok) {
+        onUserAdded();
+        onClose();
+      } else {
+        const error = await response.json();
+        alert(error.message || 'Failed to create user');
+      }
+    } catch (error) {
+      console.error('Error creating user:', error);
+      alert('Failed to create user');
+    }
+  };
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <h2>Add New User</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Name:</label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Email:</label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => handleInputChange('email', e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Password:</label>
+            <input
+              type="password"
+              value={formData.password}
+              onChange={(e) => handleInputChange('password', e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Role:</label>
+            <select
+              value={formData.role}
+              onChange={(e) => handleInputChange('role', e.target.value)}
+            >
+              <option value="ADMIN">Admin</option>
+              <option value="INSPECTOR">Inspector</option>
+              <option value="REVIEWER">Reviewer</option>
+            </select>
+          </div>
+          <div className="modal-actions">
+            <button type="submit">Create User</button>
+            <button type="button" onClick={onClose}>Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Edit User Modal
+const EditUserModal = ({ user, onClose, onUserUpdated }) => {
+  const [formData, setFormData] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+    role: user?.role || 'ADMIN',
+    // For vendors, we might have additional fields
+    phoneNumber: user?.phoneNumber || '',
+    address: user?.address || ''
+  });
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Prepare data based on user type
+    let updateData = {
+      name: formData.name,
+      email: formData.email
+    };
+
+    if (user.userType === 'vendor') {
+      // For vendors, include additional fields but not role
+      updateData.phoneNumber = formData.phoneNumber;
+      updateData.address = formData.address;
+    } else {
+      // For regular users, include role
+      updateData.role = formData.role;
+    }
+
+    onUserUpdated(updateData);
+  };
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <h2>Edit {user.userType === 'vendor' ? 'Vendor' : 'User'}</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Name:</label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Email:</label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => handleInputChange('email', e.target.value)}
+              required
+            />
+          </div>
+          
+          {user.userType === 'vendor' ? (
+            // Vendor-specific fields
+            <>
+              <div className="form-group">
+                <label>Phone Number:</label>
+                <input
+                  type="text"
+                  value={formData.phoneNumber}
+                  onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>Address:</label>
+                <input
+                  type="text"
+                  value={formData.address}
+                  onChange={(e) => handleInputChange('address', e.target.value)}
+                />
+              </div>
+            </>
+          ) : (
+            // Regular user role field
+            <div className="form-group">
+              <label>Role:</label>
+              <select
+                value={formData.role}
+                onChange={(e) => handleInputChange('role', e.target.value)}
+              >
+                <option value="ADMIN">Admin</option>
+                <option value="INSPECTOR">Inspector</option>
+                <option value="REVIEWER">Reviewer</option>
+              </select>
+            </div>
+          )}
+          
+          <div className="modal-actions">
+            <button type="submit">Update {user.userType === 'vendor' ? 'Vendor' : 'User'}</button>
+            <button type="button" onClick={onClose}>Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
 
 export default SuperAdminApp;

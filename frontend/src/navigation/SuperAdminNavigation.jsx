@@ -21,15 +21,12 @@ const SuperAdminNavigation = ({ activeSection, setActiveSection, onLogout, onPro
         <div className="nav-container">
           <div className="nav-brand">
             <Crown className="truck-icon" />
-            <span>FoodTruck Pro - Super Admin</span>
+            <span>Super Admin</span>
           </div>
           <div className="nav-links">
             {[
               { key: 'dashboard', label: 'Dashboard', icon: Activity },
-              { key: 'users', label: 'User Management', icon: Users },
-              { key: 'roles', label: 'Role Management', icon: Shield },
-              { key: 'audit', label: 'Audit Logs', icon: Activity },
-              { key: 'settings', label: 'System Settings', icon: Settings }
+              { key: 'users', label: 'User Management', icon: Users }
             ].map((section) => (
               <button
                 key={section.key}

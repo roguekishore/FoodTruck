@@ -41,6 +41,11 @@ public class DataSeeder implements CommandLineRunner {
     private void seedUsers() {
         System.out.println("Seeding users...");
 
+        // Super Admin User
+        User superAdminUser = new User("Super Admin", "superadmin@gmail.com", "demo", User.Role.SUPER_ADMIN);
+        userService.save(superAdminUser);
+        System.out.println(" - User seeded: superadmin@gmail.com (Role: SUPER_ADMIN)");
+
         // Admin Users
         User adminUser1 = new User("Admin User 1", "admin1@gmail.com", "demo", User.Role.ADMIN);
         userService.save(adminUser1);
