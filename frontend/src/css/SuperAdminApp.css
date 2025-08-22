@@ -423,6 +423,32 @@
   background: #e0e0e0;
 }
 
+/* Responsive Design */
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  
+  .overview-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .table-header,
+  .table-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .user-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .user-search,
+  .role-filter {
+    width: 100%;
+  }
+}
 /* Admin Request Management Styles */
 .admin-request-management {
   padding: 20px;
@@ -440,7 +466,7 @@
 }
 
 .request-header h1 {
-  color: #333;
+  color: #000000;
   margin: 0;
 }
 
@@ -475,7 +501,7 @@
 
 .filter-section label {
   font-weight: 500;
-  color: #555;
+  color: #000000;
 }
 
 .filter-select {
@@ -488,7 +514,7 @@
 
 .refresh-btn {
   padding: 8px 16px;
-  background: #007bff;
+  background: #f97316;
   color: white;
   border: none;
   border-radius: 6px;
@@ -498,10 +524,11 @@
 }
 
 .refresh-btn:hover {
-  background: #0056b3;
+  background: #000000;
 }
 
 .requests-container {
+  width: 1200px;
   min-height: 400px;
 }
 
@@ -514,12 +541,12 @@
 }
 
 .no-requests h3 {
-  color: #6c757d;
+  color: #333;
   margin-bottom: 10px;
 }
 
 .no-requests p {
-  color: #868e96;
+  color: #666;
   font-size: 16px;
 }
 
@@ -544,15 +571,15 @@
 }
 
 .request-card.pending {
-  border-left: 4px solid #ffc107;
+  border-left: 4px solid #f97316;
 }
 
 .request-card.approved {
-  border-left: 4px solid #28a745;
+  border-left: 4px solid #000000;
 }
 
 .request-card.rejected {
-  border-left: 4px solid #dc3545;
+  border-left: 4px solid #999999;
 }
 
 .request-header-card {
@@ -564,7 +591,7 @@
 
 .request-info h3 {
   margin: 0 0 5px 0;
-  color: #333;
+  color: #000000;
   font-size: 18px;
 }
 
@@ -584,21 +611,21 @@
 }
 
 .status-pending {
-  background: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeaa7;
+  background: #fff7ed;
+  color: #f97316;
+  border: 1px solid #f97316;
 }
 
 .status-approved {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background: #f3f4f6;
+  color: #000000;
+  border: 1px solid #ccc;
 }
 
 .status-rejected {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  background: #f3f4f6;
+  color: #666;
+  border: 1px solid #ddd;
 }
 
 .request-details {
@@ -614,7 +641,7 @@
 
 .detail-label {
   font-weight: 500;
-  color: #555;
+  color: #000000;
   font-size: 14px;
 }
 
@@ -630,7 +657,7 @@
   padding: 5px 8px;
   border-radius: 4px;
   font-style: italic;
-  border-left: 3px solid #dc3545;
+  border-left: 3px solid #000000;
 }
 
 .request-actions {
@@ -652,30 +679,30 @@
 }
 
 .approve-btn {
-  background: #28a745;
+  background: #f97316;
   color: white;
 }
 
 .approve-btn:hover:not(:disabled) {
-  background: #218838;
+  background: #000000;
 }
 
 .reject-btn {
-  background: #dc3545;
+  background: #000000;
   color: white;
 }
 
 .reject-btn:hover:not(:disabled) {
-  background: #c82333;
+  background: #f97316;
 }
 
 .delete-btn {
-  background: #6c757d;
+  background: #333333;
   color: white;
 }
 
 .delete-btn:hover:not(:disabled) {
-  background: #5a6268;
+  background: #f97316;
 }
 
 .request-actions button:disabled {
@@ -764,3 +791,56 @@
 }
 
 
+/* Refresh Button */
+.refresh-btn {
+  padding: 8px 16px;
+  background: #f97316;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.refresh-btn:hover {
+  background: white;
+  color: #000000;
+  border: 2px solid #f97316;
+}
+
+/* Approve Button */
+.approve-btn {
+  background: #f97316;
+  color: white;
+}
+
+.approve-btn:hover:not(:disabled) {
+  background: white;
+  color: #000000;
+  border: 2px solid #f97316;
+}
+
+/* Reject Button */
+.reject-btn {
+  background: #000000;
+  color: white;
+}
+
+.reject-btn:hover:not(:disabled) {
+  background: white;
+  color: #000000;
+  border: 2px solid #f97316;
+}
+
+/* Delete Button */
+.delete-btn {
+  background: #333333;
+  color: white;
+}
+
+.delete-btn:hover:not(:disabled) {
+  background: white;
+  color: #000000;
+  border: 2px solid #f97316;
+}

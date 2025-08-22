@@ -691,12 +691,12 @@ const RegionalView = () => {
               <p>Active Food Trucks: {region.activeFoodTrucks}</p>
               <p>Pending Applications: {region.pendingApplications}</p>
               <p>Total Applications: {region.totalApplications}</p>
-              <button 
-                className="view-details-btn"
-                onClick={() => alert(`Detailed view for ${region.name} region will be implemented`)}
-              >
-                View Details
-              </button>
+                {/* <button 
+                  className="view-details-btn"
+                  onClick={() => alert(`Detailed view for ${region.name} region will be implemented`)}
+                >
+                  View Details
+                </button> */}
             </div>
           ))
         )}
