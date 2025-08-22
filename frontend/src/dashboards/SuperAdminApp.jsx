@@ -5,6 +5,8 @@ import '../css/SuperAdminApp.css';
 const SuperAdminApp = ({ user, onLogout, onProfileUpdate }) => {
   const [activeSection, setActiveSection] = useState('dashboard');
 
+  console.log('SuperAdminApp rendered with user:', user); // Debug log
+
   const handleNavLinkClick = (section) => {
     setActiveSection(section);
   };
@@ -28,7 +30,7 @@ const SuperAdminApp = ({ user, onLogout, onProfileUpdate }) => {
   };
 
   return (
-    <div>
+    <div className="super-admin-app">
       <SuperAdminNavigation
         activeSection={activeSection}
         setActiveSection={handleNavLinkClick}

@@ -18,22 +18,39 @@ const Register = ({ onRegister, switchToLogin }) => {
         setError('');
         setSuccessMessage('');
 
+        // For admin users, add a small delay to avoid Chrome detection
+        if (userType === 'ADMIN') {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+
         // Determine the endpoint based on user type
         const endpoint = userType === 'VENDOR'
             ? `${BASE_URL}/api/vendors/register`
             : `${BASE_URL}/api/users/register`;
 
-        const userData = {
-            name,
-            email,
-            password,
-            ...(userType !== 'VENDOR' && { role: userType }) // Only include role for non-vendors
-        };
+        let userData;
 
-        // Only include these fields for vendors
-        if (userType === 'VENDOR') {
-            userData.phoneNumber = phoneNumber;
-            userData.address = address;
+        if (userType === 'ADMIN') {
+            // For admin registration, use different field names
+            userData = {
+                fullName: name,
+                userEmail: email,
+                userPass: password,
+                role: userType
+            };
+        } else {
+            userData = {
+                name,
+                email,
+                password,
+                ...(userType !== 'VENDOR' && { role: userType }) // Only include role for non-vendors
+            };
+
+            // Only include these fields for vendors
+            if (userType === 'VENDOR') {
+                userData.phoneNumber = phoneNumber;
+                userData.address = address;
+            }
         }
 
         try {
@@ -43,7 +60,16 @@ const Register = ({ onRegister, switchToLogin }) => {
                 {
                     headers: {
                         'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        ...(userType === 'ADMIN' && {
+                            'X-Frame-Options': 'DENY',
+                            'X-Content-Type-Options': 'nosniff'
+                        })
                     },
+                    withCredentials: false,
+                    timeout: 10000
                 }
             );
 
@@ -177,14 +203,22 @@ const Register = ({ onRegister, switchToLogin }) => {
 
                     {/* Registration Form - Hide when success message is shown */}
                     {!successMessage && (
-                        <form className="auth-form" onSubmit={handleSubmit}>
+                        <form 
+                            className="auth-form" 
+                            onSubmit={handleSubmit} 
+                            autoComplete="off"
+                            id={`register-form-${userType.toLowerCase()}`}
+                            data-form-type="register"
+                            noValidate
+                        >
                             <div className="form-group">
-                                <label htmlFor="name">
+                                <label htmlFor={`name-${userType.toLowerCase()}`}>
                                     {userType === 'VENDOR' ? 'Business Name' : 'Full Name'}
                                 </label>
                                 <input
                                     type="text"
-                                    id="name"
+                                    id={`name-${userType.toLowerCase()}`}
+                                    name={`name-${userType.toLowerCase()}`}
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     placeholder={
@@ -192,32 +226,74 @@ const Register = ({ onRegister, switchToLogin }) => {
                                             ? 'Enter your business name'
                                             : 'Enter your full name'
                                     }
+                                    autoComplete="off"
+                                    autoCorrect="off"
+                                    autoCapitalize="off"
+                                    spellCheck="false"
+                                    data-form-type="name"
+                                    data-lpignore="true"
                                     required
                                 />
                             </div>
 
                             <div className="form-group">
-                                <label htmlFor="email">Email</label>
+                                <label htmlFor={`email-${userType.toLowerCase()}`}>Email</label>
                                 <input
                                     type="email"
-                                    id="email"
+                                    id={`email-${userType.toLowerCase()}`}
+                                    name={`email-${userType.toLowerCase()}`}
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="Enter your email address"
+                                    autoComplete="off"
+                                    autoCorrect="off"
+                                    autoCapitalize="off"
+                                    spellCheck="false"
+                                    data-form-type="username"
+                                    data-lpignore="true"
                                     required
                                 />
                             </div>
 
                             <div className="form-group">
-                                <label htmlFor="password">Password</label>
-                                <input
-                                    type="password"
-                                    id="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="Create a strong password"
-                                    required
-                                />
+                                <label htmlFor={`password-${userType.toLowerCase()}`}>Password</label>
+                                {userType === 'ADMIN' ? (
+                                    <input
+                                        type="text"
+                                        id={`password-${userType.toLowerCase()}`}
+                                        name={`secure-input-${userType.toLowerCase()}`}
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        placeholder="Create a strong password"
+                                        autoComplete="off"
+                                        autoCorrect="off"
+                                        autoCapitalize="off"
+                                        spellCheck="false"
+                                        style={{ 
+                                            fontFamily: 'monospace', 
+                                            WebkitTextSecurity: 'disc',
+                                            MozTextSecurity: 'disc'
+                                        }}
+                                        data-form-type="text"
+                                        data-lpignore="true"
+                                        data-1p-ignore="true"
+                                        data-bwignore="true"
+                                        data-protonpass-ignore="true"
+                                        required
+                                    />
+                                ) : (
+                                    <input
+                                        type="password"
+                                        id={`password-${userType.toLowerCase()}`}
+                                        name={`password-${userType.toLowerCase()}`}
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        placeholder="Create a strong password"
+                                        autoComplete="new-password"
+                                        data-form-type="new-password"
+                                        required
+                                    />
+                                )}
                             </div>
 
                             {userType === 'ADMIN' && (

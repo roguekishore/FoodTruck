@@ -34,12 +34,29 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody User user) {
+    public ResponseEntity<?> registerUser(@RequestBody Map<String, Object> requestData) {
         try {
+            User user = new User();
+            
+            // Handle different field names for admin requests
+            if (requestData.containsKey("fullName")) {
+                user.setName((String) requestData.get("fullName"));
+                user.setEmail((String) requestData.get("userEmail"));
+                user.setPassword((String) requestData.get("userPass"));
+                user.setRole(User.Role.valueOf((String) requestData.get("role")));
+            } else {
+                user.setName((String) requestData.get("name"));
+                user.setEmail((String) requestData.get("email"));
+                user.setPassword((String) requestData.get("password"));
+                if (requestData.containsKey("role")) {
+                    user.setRole(User.Role.valueOf((String) requestData.get("role")));
+                }
+            }
+            
             // Check if the user is trying to register as ADMIN
             if (user.getRole() == User.Role.ADMIN) {
                 // Create an admin request instead of directly registering
-                AdminRequest request = adminRequestService.createAdminRequest(
+                AdminRequest savedRequest = adminRequestService.createAdminRequest(
                     user.getName(), 
                     user.getEmail(), 
                     user.getPassword()
@@ -47,17 +64,13 @@ public class UserController {
                 
                 return ResponseEntity.ok(Map.of(
                     "message", "Your admin registration request has been submitted and is pending super admin approval.",
-                    "requestId", request.getId(),
+                    "requestId", savedRequest.getId(),
                     "status", "PENDING"
                 ));
             }
             
             // For other roles, proceed with normal registration
             User registeredUser = userService.register(user);
-<<<<<<< Updated upstream
-            return ResponseEntity.ok(registeredUser);
-            
-=======
             
             // Generate JWT token
             String token = jwtUtil.generateToken(registeredUser.getEmail(), registeredUser.getRole().toString());
@@ -71,7 +84,6 @@ public class UserController {
             response.put("token", token);
             
             return ResponseEntity.ok(response);
->>>>>>> Stashed changes
         } catch (DuplicateUserEmailException | IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         } catch (RuntimeException e) {
@@ -82,9 +94,13 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody Map<String, String> credentials) {
         try {
-            String email = credentials.get("email");
-            String password = credentials.get("password");
-            String role = credentials.get("role");
+            // Handle both standard and admin login formats
+            String email = credentials.containsKey("userEmail") ? 
+                credentials.get("userEmail") : credentials.get("email");
+            String password = credentials.containsKey("userPass") ? 
+                credentials.get("userPass") : credentials.get("password");
+            String role = credentials.containsKey("userRole") ? 
+                credentials.get("userRole") : credentials.get("role");
 
             User authenticatedUser = userService.login(email, password, role);
             
