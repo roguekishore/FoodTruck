@@ -1,73 +1,60 @@
 import React, { useState } from 'react';
-import { Crown, Users, Shield, Activity, Settings, LogOut, User } from 'lucide-react';
 import EditProfile from '../components/EditProfile';
 import '../css/Navigation.css';
 
 const SuperAdminNavigation = ({ activeSection, setActiveSection, onLogout, onProfileUpdate, user }) => {
-  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
+  const handleProfileClick = () => {
+    setShowProfileModal(true);
+  };
 
   const handleProfileUpdate = (updatedUser) => {
-    setShowEditProfile(false);
-    
-    // Call the onProfileUpdate callback to update the parent state
-    if (onProfileUpdate) {
-      onProfileUpdate(updatedUser);
-    }
+    onProfileUpdate(updatedUser);
+    setShowProfileModal(false);
   };
 
   return (
-    <>
-      <nav className="navigation">
-        <div className="nav-container">
-          <div className="nav-brand">
-            <Crown className="truck-icon" />
-            <span>Super Admin</span>
-          </div>
-          <div className="nav-links">
-            {[
-              { key: 'dashboard', label: 'Dashboard', icon: Activity },
-              { key: 'users', label: 'User Management', icon: Users }
-            ].map((section) => (
-              <button
-                key={section.key}
-                onClick={() => setActiveSection(section.key)}
-                className={`nav-link ${activeSection === section.key ? 'active' : ''}`}
-              >
-                <section.icon size={16} />
-                {section.label}
-              </button>
-            ))}
-          </div>
-          {user && (
-            <div className="nav-user">
-              <button 
-                onClick={() => setShowEditProfile(true)} 
-                className="profile-btn"
-                title="Edit Profile"
-              >
-                <User size={18} className="profile-icon" />
-              </button>
-              <button 
-                onClick={onLogout} 
-                className="logout-btn"
-                title="Logout"
-              >
-                <LogOut size={18} className="logout-icon" />
-              </button>
-            </div>
-          )}
+    <nav className="navbar">
+      <div className="nav-container">
+        <div className="nav-logo">
+          <h2>FoodTruck Super Admin</h2>
         </div>
-      </nav>
+        <ul className="nav-menu">
+          <li className={activeSection === 'dashboard' ? 'active' : ''}>
+            <a onClick={() => setActiveSection('dashboard')}>
+              Dashboard
+            </a>
+          </li>
+          <li className={activeSection === 'users' ? 'active' : ''}>
+            <a onClick={() => setActiveSection('users')}>
+              User Management
+            </a>
+          </li>
+          <li className={activeSection === 'admin-requests' ? 'active' : ''}>
+            <a onClick={() => setActiveSection('admin-requests')}>
+              Admin Requests
+            </a>
+          </li>
+        </ul>
+        <div className="nav-user">
+          <span className="user-name" onClick={handleProfileClick}>
+            {user.name}
+          </span>
+          <button className="logout-btn" onClick={onLogout}>
+            Logout
+          </button>
+        </div>
+      </div>
       
-      {showEditProfile && (
+      {showProfileModal && (
         <EditProfile
           user={user}
-          userType="user"
+          onClose={() => setShowProfileModal(false)}
           onSave={handleProfileUpdate}
-          onCancel={() => setShowEditProfile(false)}
         />
       )}
-    </>
+    </nav>
   );
 };
 

@@ -9,12 +9,14 @@ const Register = ({ onRegister, switchToLogin }) => {
     const [address, setAddress] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
     const [userType, setUserType] = useState('VENDOR');
     const BASE_URL = process.env.REACT_APP_URL;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setSuccessMessage('');
 
         // Determine the endpoint based on user type
         const endpoint = userType === 'VENDOR'
@@ -45,8 +47,20 @@ const Register = ({ onRegister, switchToLogin }) => {
                 }
             );
 
-            // Add role to the response data if it's a vendor
             const responseData = response.data;
+            
+            // Check if it's an admin registration request (pending approval)
+            if (userType === 'ADMIN' && responseData.status === 'PENDING') {
+                setSuccessMessage(responseData.message);
+                // Clear the form
+                setName('');
+                setEmail('');
+                setPassword('');
+                // Don't call onRegister since the account isn't created yet
+                return;
+            }
+
+            // For vendors and other successful registrations
             if (userType === 'VENDOR') {
                 responseData.role = 'VENDOR';
             }
@@ -75,7 +89,7 @@ const Register = ({ onRegister, switchToLogin }) => {
             case 'REVIEWER':
                 return 'Register as a reviewer to rate and review food trucks';
             case 'ADMIN':
-                return 'Register as an administrator to manage the system';
+                return 'Register as an administrator to manage the system (requires approval)';
             default:
                 return 'Create your account';
         }
@@ -130,62 +144,101 @@ const Register = ({ onRegister, switchToLogin }) => {
                         >
                             Admin
                         </button>
-
                     </div>
 
-                    <form className="auth-form" onSubmit={handleSubmit}>
-                        <div className="form-group">
-                            <label htmlFor="name">
-                                {userType === 'VENDOR' ? 'Business Name' : 'Full Name'}
-                            </label>
-                            <input
-                                type="text"
-                                id="name"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                placeholder={
-                                    userType === 'VENDOR'
-                                        ? 'Enter your business name'
-                                        : 'Enter your full name'
-                                }
-                                required
-                            />
+                    {/* Success Message for Admin Registration */}
+                    {successMessage && (
+                        <div className="success-message">
+                            <div className="success-content">
+                                <h3>✓ Request Submitted Successfully!</h3>
+                                <p>{successMessage}</p>
+                                <div className="success-actions">
+                                    <button 
+                                        type="button" 
+                                        className="switch-to-login-btn"
+                                        onClick={switchToLogin}
+                                    >
+                                        Go to Login
+                                    </button>
+                                    <button 
+                                        type="button" 
+                                        className="submit-another-btn"
+                                        onClick={() => {
+                                            setSuccessMessage('');
+                                            setUserType('VENDOR');
+                                        }}
+                                    >
+                                        Submit Another Request
+                                    </button>
+                                </div>
+                            </div>
                         </div>
+                    )}
 
-                        <div className="form-group">
-                            <label htmlFor="email">Email</label>
-                            <input
-                                type="email"
-                                id="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="Enter your email address"
-                                required
-                            />
+                    {/* Registration Form - Hide when success message is shown */}
+                    {!successMessage && (
+                        <form className="auth-form" onSubmit={handleSubmit}>
+                            <div className="form-group">
+                                <label htmlFor="name">
+                                    {userType === 'VENDOR' ? 'Business Name' : 'Full Name'}
+                                </label>
+                                <input
+                                    type="text"
+                                    id="name"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder={
+                                        userType === 'VENDOR'
+                                            ? 'Enter your business name'
+                                            : 'Enter your full name'
+                                    }
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="email">Email</label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="Enter your email address"
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="password">Password</label>
+                                <input
+                                    type="password"
+                                    id="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="Create a strong password"
+                                    required
+                                />
+                            </div>
+
+                            {userType === 'ADMIN' && (
+                                <div className="admin-notice">
+                                    <p><strong>Note:</strong> Admin registration requires approval from the Super Admin. You will be notified once your request is reviewed.</p>
+                                </div>
+                            )}
+
+                            {error && <div className="error-message">{error}</div>}
+
+                            <button type="submit" className="submit-btn">
+                                {userType === 'ADMIN' ? 'Submit Admin Request' : `Register as ${getUserTypeTitle()}`}
+                            </button>
+                        </form>
+                    )}
+
+                    {!successMessage && (
+                        <div className="auth-footer">
+                            Already have an account? <a href="#" onClick={switchToLogin}>Sign In</a>
                         </div>
-
-                        <div className="form-group">
-                            <label htmlFor="password">Password</label>
-                            <input
-                                type="password"
-                                id="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder="Create a strong password"
-                                required
-                            />
-                        </div>
-
-                        {error && <div className="error-message">{error}</div>}
-
-                        <button type="submit" className="submit-btn">
-                            {`Register as ${getUserTypeTitle()}`}
-                        </button>
-                    </form>
-
-                    <div className="auth-footer">
-                        Already have an account? <a href="#" onClick={switchToLogin}>Sign In</a>
-                    </div>
+                    )}
                 </div>
             </div>
         </div>

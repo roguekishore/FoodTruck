@@ -5,12 +5,14 @@ import com.examly.springapp.model.Vendor;
 import com.examly.springapp.model.Application;
 import com.examly.springapp.model.Inspection;
 import com.examly.springapp.model.Review;
+import com.examly.springapp.model.AdminRequest;
 import com.examly.springapp.service.UserService;
 import com.examly.springapp.service.VendorService;
 import com.examly.springapp.service.ApplicationService;
 import com.examly.springapp.service.InspectionService;
 import com.examly.springapp.service.ReviewService;
 import com.examly.springapp.service.FoodTruckService;
+import com.examly.springapp.service.AdminRequestService;
 import com.examly.springapp.exception.UserNotFoundException;
 import com.examly.springapp.exception.DuplicateUserEmailException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +46,9 @@ public class SuperAdminController {
 
     @Autowired
     private FoodTruckService foodTruckService;
+
+    @Autowired
+    private AdminRequestService adminRequestService;
 
     // Enhanced dashboard statistics endpoint with analytics
     @GetMapping("/dashboard/stats")
@@ -265,6 +270,66 @@ public class SuperAdminController {
         } catch (Exception e) {
             return ResponseEntity.badRequest()
                     .body(Map.of("message", "Failed to update user status"));
+        }
+    }
+
+    // Get all admin requests
+    @GetMapping("/admin-requests")
+    public ResponseEntity<List<AdminRequest>> getAllAdminRequests() {
+        List<AdminRequest> requests = adminRequestService.getAllRequests();
+        return ResponseEntity.ok(requests);
+    }
+
+    // Get pending admin requests
+    @GetMapping("/admin-requests/pending")
+    public ResponseEntity<List<AdminRequest>> getPendingAdminRequests() {
+        List<AdminRequest> requests = adminRequestService.getAllPendingRequests();
+        return ResponseEntity.ok(requests);
+    }
+
+    // Approve admin request
+    @PostMapping("/admin-requests/{requestId}/approve")
+    public ResponseEntity<?> approveAdminRequest(@PathVariable Long requestId) {
+        try {
+            // Replace with actual authenticated super admin ID
+            Long superAdminId = 1L;
+            
+            AdminRequest approvedRequest = adminRequestService.approveRequest(requestId, superAdminId);
+            return ResponseEntity.ok(Map.of(
+                "message", "Admin request approved successfully",
+                "request", approvedRequest
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    // Reject admin request
+    @PostMapping("/admin-requests/{requestId}/reject")
+    public ResponseEntity<?> rejectAdminRequest(@PathVariable Long requestId, @RequestBody Map<String, String> requestBody) {
+        try {
+            String rejectionReason = requestBody.get("reason");
+            // Replace with actual authenticated super admin ID
+            Long superAdminId = 1L;
+            
+            AdminRequest rejectedRequest = adminRequestService.rejectRequest(requestId, superAdminId, rejectionReason);
+            return ResponseEntity.ok(Map.of(
+                "message", "Admin request rejected successfully",
+                "request", rejectedRequest
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    // Delete admin request
+    @DeleteMapping("/admin-requests/{requestId}")
+    public ResponseEntity<?> deleteAdminRequest(@PathVariable Long requestId) {
+        try {
+            adminRequestService.deleteRequest(requestId);
+            return ResponseEntity.ok(Map.of("message", "Admin request deleted successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Failed to delete admin request"));
         }
     }
 }

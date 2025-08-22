@@ -113,6 +113,32 @@ export const ApiProvider = ({ children }) => {
   const deleteMenuItem = async (menuItemId) => api.delete(`/menuitems/${menuItemId}`);
   
 
+  // Admin Request Endpoints
+  const getAllAdminRequests = async () => {
+    const response = await api.get('/superadmin/admin-requests');
+    return response.data;
+  };
+
+  const getPendingAdminRequests = async () => {
+    const response = await api.get('/superadmin/admin-requests/pending');
+    return response.data;
+  };
+
+  const approveAdminRequest = async (requestId) => {
+    const response = await api.post(`/superadmin/admin-requests/${requestId}/approve`);
+    return response.data;
+  };
+
+  const rejectAdminRequest = async (requestId, reason) => {
+    const response = await api.post(`/superadmin/admin-requests/${requestId}/reject`, { reason });
+    return response.data;
+  };
+
+  const deleteAdminRequest = async (requestId) => {
+    const response = await api.delete(`/superadmin/admin-requests/${requestId}`);
+    return response.data;
+  };
+
   const apiFunctions = {
     // Vendor
     createVendor,
@@ -148,6 +174,13 @@ export const ApiProvider = ({ children }) => {
     createMenuItem,
     updateMenuItem,
     deleteMenuItem,
+
+    // Admin Requests
+    getAllAdminRequests,
+    getPendingAdminRequests,
+    approveAdminRequest,
+    rejectAdminRequest,
+    deleteAdminRequest,
   };
 
   return (

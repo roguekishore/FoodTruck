@@ -8,6 +8,9 @@ import com.examly.springapp.exception.InvalidUserPasswordException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.examly.springapp.service.AdminRequestService;
+import com.examly.springapp.model.AdminRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -17,6 +20,9 @@ import java.util.Map;
 public class UserController {
     private final UserService userService;
 
+    @Autowired
+    private AdminRequestService adminRequestService;
+
     public UserController(UserService userService) {
         this.userService = userService;
     }
@@ -24,9 +30,29 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
         try {
+            // Check if the user is trying to register as ADMIN
+            if (user.getRole() == User.Role.ADMIN) {
+                // Create an admin request instead of directly registering
+                AdminRequest request = adminRequestService.createAdminRequest(
+                    user.getName(), 
+                    user.getEmail(), 
+                    user.getPassword()
+                );
+                
+                return ResponseEntity.ok(Map.of(
+                    "message", "Your admin registration request has been submitted and is pending super admin approval.",
+                    "requestId", request.getId(),
+                    "status", "PENDING"
+                ));
+            }
+            
+            // For other roles, proceed with normal registration
             User registeredUser = userService.register(user);
             return ResponseEntity.ok(registeredUser);
+            
         } catch (DuplicateUserEmailException | IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
@@ -98,6 +124,8 @@ public class UserController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    
 
     
 }

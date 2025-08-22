@@ -20,6 +20,8 @@ const SuperAdminApp = ({ user, onLogout, onProfileUpdate }) => {
         return <SuperAdminDashboard />;
       case 'users':
         return <UserManagement />;
+      case 'admin-requests':
+        return <AdminRequestManagement />;
       default:
         return <SuperAdminDashboard />;
     }
@@ -496,6 +498,259 @@ const UserManagement = () => {
           onUserUpdated={handleUpdateUser}
         />
       )}
+    </div>
+  );
+};
+
+// Admin Request Management Component
+const AdminRequestManagement = () => {
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('pending');
+  const [processingRequest, setProcessingRequest] = useState(null);
+  const BASE_URL = process.env.REACT_APP_URL;
+
+  useEffect(() => {
+    fetchAdminRequests();
+  }, [filter]);
+
+  const fetchAdminRequests = async () => {
+    try {
+      setLoading(true);
+      const endpoint = filter === 'pending' 
+        ? `${BASE_URL}/api/superadmin/admin-requests/pending`
+        : `${BASE_URL}/api/superadmin/admin-requests`;
+      
+      const response = await fetch(endpoint);
+      if (response.ok) {
+        const data = await response.json();
+        setRequests(data);
+      } else {
+        console.error('Failed to fetch admin requests');
+      }
+    } catch (error) {
+      console.error('Error fetching admin requests:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApproveRequest = async (requestId) => {
+    if (window.confirm('Are you sure you want to approve this admin request? This will create a new admin account.')) {
+      try {
+        setProcessingRequest(requestId);
+        const response = await fetch(`${BASE_URL}/api/superadmin/admin-requests/${requestId}/approve`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          alert('Admin request approved successfully! New admin account has been created.');
+          fetchAdminRequests(); // Refresh the list
+        } else {
+          const error = await response.json();
+          alert(error.message || 'Failed to approve request');
+        }
+      } catch (error) {
+        console.error('Error approving request:', error);
+        alert('Failed to approve request. Please try again.');
+      } finally {
+        setProcessingRequest(null);
+      }
+    }
+  };
+
+  const handleRejectRequest = async (requestId) => {
+    const reason = prompt('Please provide a reason for rejection:');
+    if (reason !== null && reason.trim() !== '') {
+      try {
+        setProcessingRequest(requestId);
+        const response = await fetch(`${BASE_URL}/api/superadmin/admin-requests/${requestId}/reject`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason: reason.trim() })
+        });
+        
+        if (response.ok) {
+          alert('Admin request rejected successfully.');
+          fetchAdminRequests(); // Refresh the list
+        } else {
+          const error = await response.json();
+          alert(error.message || 'Failed to reject request');
+        }
+      } catch (error) {
+        console.error('Error rejecting request:', error);
+        alert('Failed to reject request. Please try again.');
+      } finally {
+        setProcessingRequest(null);
+      }
+    }
+  };
+
+  const handleDeleteRequest = async (requestId) => {
+    if (window.confirm('Are you sure you want to delete this admin request? This action cannot be undone.')) {
+      try {
+        setProcessingRequest(requestId);
+        const response = await fetch(`${BASE_URL}/api/superadmin/admin-requests/${requestId}`, {
+          method: 'DELETE'
+        });
+        
+        if (response.ok) {
+          alert('Admin request deleted successfully.');
+          fetchAdminRequests(); // Refresh the list
+        } else {
+          alert('Failed to delete request. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error deleting request:', error);
+        alert('Failed to delete request. Please try again.');
+      } finally {
+        setProcessingRequest(null);
+      }
+    }
+  };
+
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case 'PENDING': return 'status-pending';
+      case 'APPROVED': return 'status-approved';
+      case 'REJECTED': return 'status-rejected';
+      default: return '';
+    }
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  if (loading) {
+    return <div className="loading">Loading admin requests...</div>;
+  }
+
+  return (
+    <div className="admin-request-management">
+      <div className="request-header">
+        <h1>Admin Registration Requests</h1>
+        <div className="request-summary">
+          <span className="summary-item">
+            Total Requests: <strong>{requests.length}</strong>
+          </span>
+          <span className="summary-item">
+            Pending: <strong>{requests.filter(r => r.status === 'PENDING').length}</strong>
+          </span>
+        </div>
+      </div>
+      
+      <div className="request-controls">
+        <div className="filter-section">
+          <label htmlFor="statusFilter">Filter by Status:</label>
+          <select 
+            id="statusFilter"
+            className="filter-select"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+          >
+            <option value="pending">Pending Requests Only</option>
+            <option value="all">All Requests</option>
+          </select>
+        </div>
+        <button className="refresh-btn" onClick={fetchAdminRequests}>
+          Refresh
+        </button>
+      </div>
+
+      <div className="requests-container">
+        {requests.length === 0 ? (
+          <div className="no-requests">
+            <h3>No {filter === 'pending' ? 'pending ' : ''}admin requests found</h3>
+            <p>
+              {filter === 'pending' 
+                ? 'All admin requests have been processed.' 
+                : 'No admin registration requests have been submitted yet.'
+              }
+            </p>
+          </div>
+        ) : (
+          <div className="requests-grid">
+            {requests.map((request) => (
+              <div key={request.id} className={`request-card ${request.status.toLowerCase()}`}>
+                <div className="request-header-card">
+                  <div className="request-info">
+                    <h3>{request.name}</h3>
+                    <p className="request-email">{request.email}</p>
+                  </div>
+                  <span className={`status-badge ${getStatusBadgeClass(request.status)}`}>
+                    {request.status}
+                  </span>
+                </div>
+                
+                <div className="request-details">
+                  <div className="detail-row">
+                    <span className="detail-label">Request Date:</span>
+                    <span className="detail-value">{formatDate(request.requestDate)}</span>
+                  </div>
+                  
+                  {request.reviewDate && (
+                    <div className="detail-row">
+                      <span className="detail-label">Review Date:</span>
+                      <span className="detail-value">{formatDate(request.reviewDate)}</span>
+                    </div>
+                  )}
+                  
+                  {request.reviewedBy && (
+                    <div className="detail-row">
+                      <span className="detail-label">Reviewed By:</span>
+                      <span className="detail-value">{request.reviewedBy.name}</span>
+                    </div>
+                  )}
+                  
+                  {request.rejectionReason && (
+                    <div className="detail-row">
+                      <span className="detail-label">Rejection Reason:</span>
+                      <span className="detail-value rejection-reason">{request.rejectionReason}</span>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="request-actions">
+                  {request.status === 'PENDING' && (
+                    <>
+                      <button 
+                        className="approve-btn"
+                        onClick={() => handleApproveRequest(request.id)}
+                        disabled={processingRequest === request.id}
+                      >
+                        {processingRequest === request.id ? 'Processing...' : 'Approve'}
+                      </button>
+                      <button 
+                        className="reject-btn"
+                        onClick={() => handleRejectRequest(request.id)}
+                        disabled={processingRequest === request.id}
+                      >
+                        {processingRequest === request.id ? 'Processing...' : 'Reject'}
+                      </button>
+                    </>
+                  )}
+                  <button 
+                    className="delete-btn"
+                    onClick={() => handleDeleteRequest(request.id)}
+                    disabled={processingRequest === request.id}
+                  >
+                    {processingRequest === request.id ? 'Deleting...' : 'Delete'}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -17,13 +17,13 @@ public class User {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    // @Column(nullable = false)
     private Role role;
 
     public enum Role {
-        ADMIN, INSPECTOR, REVIEWER, SUPER_ADMIN
+        ADMIN, INSPECTOR, REVIEWER, SUPER_ADMIN, USER
     }
 
+    // Constructors
     public User() {
     }
 
@@ -42,6 +42,7 @@ public class User {
         this.role = role;
     }
 
+    // Getters and Setters
     public Long getId() {
         return id;
     }
