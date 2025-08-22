@@ -1,6 +1,7 @@
 package com.examly.springapp.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.examly.springapp.exception.DuplicateVendorNameException;
@@ -15,6 +16,9 @@ public class VendorService {
 
     @Autowired
     private VendorRepository vendorRepository;
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public List<Vendor> getAllVendors() {
         return vendorRepository.findAll();
@@ -30,6 +34,10 @@ public class VendorService {
         if(v.isPresent()) {
             throw new DuplicateVendorNameException("A vendor with this email already exists");
         }
+        
+        // Hash the password before saving
+        vendor.setPassword(passwordEncoder.encode(vendor.getPassword()));
+        
         return vendorRepository.save(vendor);
     }
 
@@ -47,7 +55,10 @@ public class VendorService {
 
         existingVendor.setName(updatedVendor.getName());
         existingVendor.setEmail(updatedVendor.getEmail());
-        existingVendor.setPassword(updatedVendor.getPassword());
+        // Hash the password before saving
+        if (updatedVendor.getPassword() != null && !updatedVendor.getPassword().trim().isEmpty()) {
+            existingVendor.setPassword(passwordEncoder.encode(updatedVendor.getPassword()));
+        }
         return vendorRepository.save(existingVendor);
     }
 
@@ -69,7 +80,8 @@ public class VendorService {
         }
 
         if (updatedVendor.getPassword() != null && !updatedVendor.getPassword().trim().isEmpty()) {
-            existingVendor.setPassword(updatedVendor.getPassword());
+            // Hash the password before saving
+            existingVendor.setPassword(passwordEncoder.encode(updatedVendor.getPassword()));
         }
 
         return vendorRepository.save(existingVendor);
@@ -84,7 +96,8 @@ public class VendorService {
         Vendor vendor = vendorRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new RuntimeException("Vendor not found"));
         
-        if (!vendor.getPassword().equals(password)) {
+        // Use password encoder to check password
+        if (!passwordEncoder.matches(password, vendor.getPassword())) {
             throw new RuntimeException("Invalid password");
         }
         

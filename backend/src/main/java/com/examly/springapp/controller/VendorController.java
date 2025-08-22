@@ -7,10 +7,12 @@ import org.springframework.web.bind.annotation.*;
 
 import com.examly.springapp.model.Vendor;
 import com.examly.springapp.service.VendorService;
+import com.examly.springapp.configuration.JWTUtil;
 
 import lombok.Data;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -22,11 +24,31 @@ public class VendorController {
 
     @Autowired
     private VendorService vendorService;
+    
+    @Autowired
+    private JWTUtil jwtUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<Vendor> createVendor(@RequestBody Vendor vendor) {
-        Vendor savedVendor = vendorService.saveVendor(vendor);
-        return new ResponseEntity<>(savedVendor, HttpStatus.CREATED);
+    public ResponseEntity<?> createVendor(@RequestBody Vendor vendor) {
+        try {
+            Vendor savedVendor = vendorService.saveVendor(vendor);
+            
+            // Generate JWT token
+            String token = jwtUtil.generateToken(savedVendor.getEmail(), "VENDOR");
+            
+            // Create response with vendor data and token
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", savedVendor.getId());
+            response.put("name", savedVendor.getName());
+            response.put("email", savedVendor.getEmail());
+            response.put("role", "VENDOR");
+            response.put("token", token);
+            
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(Collections.singletonMap("message", e.getMessage()));
+        }
     }
 
     @PostMapping("/login")
@@ -35,7 +57,19 @@ public class VendorController {
             Vendor vendor = vendorService.loginVendor(
                     credentials.getEmail(),
                     credentials.getPassword());
-            return ResponseEntity.ok(vendor);
+                    
+            // Generate JWT token
+            String token = jwtUtil.generateToken(vendor.getEmail(), "VENDOR");
+            
+            // Create response with vendor data and token
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", vendor.getId());
+            response.put("name", vendor.getName());
+            response.put("email", vendor.getEmail());
+            response.put("role", "VENDOR");
+            response.put("token", token);
+            
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.status(401)
                     .body(Collections.singletonMap("message", e.getMessage()));

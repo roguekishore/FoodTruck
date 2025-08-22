@@ -2,9 +2,11 @@ package com.examly.springapp.controller;
 
 import com.examly.springapp.model.User;
 import com.examly.springapp.service.UserService;
+import com.examly.springapp.configuration.JWTUtil;
 import com.examly.springapp.exception.DuplicateUserEmailException;
 import com.examly.springapp.exception.UserNotFoundException;
 import com.examly.springapp.exception.InvalidUserPasswordException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.examly.springapp.service.AdminRequestService;
 import com.examly.springapp.model.AdminRequest;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +22,9 @@ import java.util.Map;
 @RequestMapping("/api/users")
 public class UserController {
     private final UserService userService;
+    
+    @Autowired
+    private JWTUtil jwtUtil;
 
     @Autowired
     private AdminRequestService adminRequestService;
@@ -48,8 +54,24 @@ public class UserController {
             
             // For other roles, proceed with normal registration
             User registeredUser = userService.register(user);
+<<<<<<< Updated upstream
             return ResponseEntity.ok(registeredUser);
             
+=======
+            
+            // Generate JWT token
+            String token = jwtUtil.generateToken(registeredUser.getEmail(), registeredUser.getRole().toString());
+            
+            // Create response with user data and token
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", registeredUser.getId());
+            response.put("name", registeredUser.getName());
+            response.put("email", registeredUser.getEmail());
+            response.put("role", registeredUser.getRole());
+            response.put("token", token);
+            
+            return ResponseEntity.ok(response);
+>>>>>>> Stashed changes
         } catch (DuplicateUserEmailException | IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         } catch (RuntimeException e) {
@@ -65,7 +87,19 @@ public class UserController {
             String role = credentials.get("role");
 
             User authenticatedUser = userService.login(email, password, role);
-            return ResponseEntity.ok(authenticatedUser);
+            
+            // Generate JWT token
+            String token = jwtUtil.generateToken(authenticatedUser.getEmail(), authenticatedUser.getRole().toString());
+            
+            // Create response with user data and token
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", authenticatedUser.getId());
+            response.put("name", authenticatedUser.getName());
+            response.put("email", authenticatedUser.getEmail());
+            response.put("role", authenticatedUser.getRole());
+            response.put("token", token);
+            
+            return ResponseEntity.ok(response);
         } catch (UserNotFoundException | InvalidUserPasswordException | IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
@@ -85,7 +119,7 @@ public class UserController {
 
     @PostMapping
     public User create(@RequestBody User user) {
-        return userService.save(user);
+        return userService.register(user);
     }
 
     @PutMapping("/{id}")

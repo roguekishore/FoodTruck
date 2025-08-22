@@ -5,6 +5,8 @@ import com.examly.springapp.repository.UserRepository;
 import com.examly.springapp.exception.DuplicateUserEmailException;
 import com.examly.springapp.exception.UserNotFoundException;
 import com.examly.springapp.exception.InvalidUserPasswordException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +15,9 @@ import java.util.Optional;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -35,7 +40,9 @@ public class UserService {
             throw new DuplicateUserEmailException("A user with this email already exists");
         }
 
-        // Save user with plain password (not recommended for production)
+        // Hash the password before saving
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        
         return userRepository.save(user);
     }
 
@@ -46,7 +53,9 @@ public class UserService {
         }
 
         User user = userOptional.get();
-        if (!user.getPassword().equals(password)) {
+        
+        // Use password encoder to check password
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new InvalidUserPasswordException("Invalid password");
         }
 
@@ -70,6 +79,12 @@ public class UserService {
         if (user.getRole() == null) {
             throw new IllegalArgumentException("Role must be specified.");
         }
+        
+        // If this is a new user (no ID) and password is not hashed, hash it
+        if (user.getId() == null && user.getPassword() != null && !user.getPassword().startsWith("$2a$")) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+        
         return userRepository.save(user);
     }
 
@@ -99,7 +114,8 @@ public class UserService {
         }
 
         if (updatedUser.getPassword() != null && !updatedUser.getPassword().trim().isEmpty()) {
-            existingUser.setPassword(updatedUser.getPassword());
+            // Hash the new password before saving
+            existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
         }
 
         // Update role if provided
